@@ -20,6 +20,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -53,6 +54,8 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
+
+    private Stage stage;
 
     @FXML
     private GridPane nextBrickPanel;
@@ -246,6 +249,11 @@ public class GuiController implements Initializable {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
+
+        if (gameOverPanel.lookup ("#newGameButton") == null) {
+            GameOverButton buttons = new GameOverButton(stage, () -> newGame(null));
+            gameOverPanel.getChildren().add(buttons);
+        } 
     }
 
     public void newGame(ActionEvent actionEvent) {
