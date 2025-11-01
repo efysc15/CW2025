@@ -8,6 +8,13 @@ public class GameController implements InputEventListener {
 
     public GameController(GuiController c) {
         viewGuiController = c;
+
+        // Set up next brick display (if the board is SimpleBoard)
+        if (board instanceof SimpleBoard simpleBoard) {
+            simpleBoard.setNextBrickConsumer(viewGuiController::showNextBrick); // Show next brick in GUI
+            viewGuiController.showNextBrick(simpleBoard.getNextBrick());    // Display the next brick preview
+        }
+
         board.createNewBrick();
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());

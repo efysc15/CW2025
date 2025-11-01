@@ -1,5 +1,6 @@
 package com.comp2042;
 
+import com.comp2042.logic.bricks.Brick;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -22,6 +23,8 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import javafx.geometry.Pos;
 
 public class GuiController implements Initializable {
 
@@ -50,6 +53,9 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
+
+    @FXML
+    private GridPane nextBrickPanel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -88,6 +94,39 @@ public class GuiController implements Initializable {
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+    }
+
+    public void showNextBrick (Brick nextBricks) {
+        if (nextBrickPanel == null) return;
+        nextBrickPanel.getChildren().clear();
+
+        if (nextBricks == null) return;
+
+        int[][] shape = nextBricks.getShapeMatrix().get(0);
+        int brickId = nextBricks.getId();
+        Paint color = getFillColor(brickId);
+
+        int previewSize = 18;
+        int shapeHeight = shape.length;
+        int shapeWidth = shape[0].length;
+
+        int panelCols = 6;
+        int panelRows = 6;
+
+        int offsetX = (panelCols - shapeWidth) / 2;
+        int offsetY = (panelRows - shapeHeight) / 2;
+
+        for (int i = 0; i < shapeHeight; i++) {
+            for (int j = 0; j < shapeWidth; j++) {
+                if (shape[i][j] != 0) {
+                    Rectangle rect = new Rectangle (previewSize, previewSize, color);
+                    rect.setStroke(Color.BLACK);
+                    nextBrickPanel.add(rect, j + offsetX, i + offsetY);
+                }
+            }
+        }
+
+        nextBrickPanel.setAlignment(Pos.CENTER);
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {

@@ -1,15 +1,17 @@
 package com.comp2042.logic.bricks;
 
-import com.comp2042.MatrixOperations;
-
 import java.util.ArrayList;
 import java.util.List;
 
-final class JBrick implements Brick {
+public final class JBrick extends Brick {
 
-    private final List<int[][]> brickMatrix = new ArrayList<>();
+        public JBrick() {
+                super(2, createShape());
+        }
 
-    public JBrick() {
+        private static List <int[][]> createShape() { 
+        List<int[][]> brickMatrix = new ArrayList<>();
+
         brickMatrix.add(new int[][]{
                 {0, 0, 0, 0},
                 {2, 2, 2, 0},
@@ -34,10 +36,7 @@ final class JBrick implements Brick {
                 {0, 2, 2, 0},
                 {0, 0, 0, 0}
         });
-    }
 
-    @Override
-    public List<int[][]> getShapeMatrix() {
-        return MatrixOperations.deepCopyList(brickMatrix);
+        return brickMatrix;
     }
 }

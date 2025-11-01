@@ -1,10 +1,11 @@
 package com.comp2042;
 
+import java.awt.Point;
+import java.util.function.Consumer;
+
 import com.comp2042.logic.bricks.Brick;
 import com.comp2042.logic.bricks.BrickGenerator;
 import com.comp2042.logic.bricks.RandomBrickGenerator;
-
-import java.awt.*;
 
 public class SimpleBoard implements Board {
 
@@ -15,6 +16,17 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
+    private Consumer<Brick>nextBrickConsumer; // Used to show the next brick in GUI
+
+    // Set action to update the next brick preview
+    public void setNextBrickConsumer(Consumer<Brick> nextBrickConsumer) {
+        this.nextBrickConsumer = nextBrickConsumer;
+    }
+
+    // Get next brick that will appear after the current one 
+    public Brick getNextBrick() {
+        return brickGenerator.getNextBrick();
+    }
 
     public SimpleBoard(int width, int height) {
         this.width = width;
@@ -86,6 +98,12 @@ public class SimpleBoard implements Board {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
         currentOffset = new Point(4, 10);
+
+        // If the next brick display is set up, show the next brick in the GUI
+        if (nextBrickConsumer != null) {
+            nextBrickConsumer.accept(brickGenerator.getNextBrick());
+        }
+
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
 
