@@ -21,6 +21,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 import javafx.stage.Stage;
+import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -59,6 +60,8 @@ public class GuiController implements Initializable {
 
     @FXML
     private GridPane nextBrickPanel;
+
+    @FXML Label scoreLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -243,6 +246,7 @@ public class GuiController implements Initializable {
     }
 
     public void bindScore(IntegerProperty integerProperty) {
+        scoreLabel.textProperty().bind(integerProperty.asString("%d"));
     }
 
     public void gameOver() {

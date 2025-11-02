@@ -29,19 +29,22 @@ public class GameController implements InputEventListener {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
+                int lines = clearRow.getLinesRemoved();
+                int points = switch (lines) {
+                    case 1 -> 50;   // Single Line Clear + 50
+                    case 2 -> 120;  // Doublie Line Clear + 120
+                    case 3 -> 360;  // Triple Line Clear + 360
+                    case 4 -> 1500; // Tetris Line Clear (4 lines with a I-shape) + 1500
+                    default -> 0;
+                };
+                board.getScore().add(points);
             }
             if (board.createNewBrick()) {
                 viewGuiController.gameOver();
             }
 
             viewGuiController.refreshGameBackground(board.getBoardMatrix());
-
-        } else {
-            if (event.getEventSource() == EventSource.USER) {
-                board.getScore().add(1);
-            }
-        }
+        } 
         return new DownData(clearRow, board.getViewData());
     }
 
