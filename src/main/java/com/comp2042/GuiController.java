@@ -88,6 +88,10 @@ public class GuiController implements Initializable {
                         moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
                         keyEvent.consume();
                     }
+                    if (keyEvent.getCode() == KeyCode.ENTER || keyEvent.getCode() == KeyCode.SPACE) {
+                        hardDrop();
+                        keyEvent.consume();
+                    }
                 }
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
@@ -272,5 +276,59 @@ public class GuiController implements Initializable {
 
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
+    }
+
+    public void hardDrop() {
+        if (isPause.get() || isGameOver.get()) {
+            return;
+        }
+
+        DownData downData;
+        boolean landed = false;
+
+        // Drop the brick all the way down
+        do { 
+            downData = eventListener.onDownEvent(new MoveEvent (EventType.DOWN, EventSource.USER));
+            landed = downData.isLanded();
+            refreshBrick(downData.getViewData());
+        } while (!landed);
+
+        if (board != null) {
+            refreshGameBackground(boardMatrixFromDownData(downData));
+        }
+
+        if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+            int lines = downData.getClearRow().getLinesRemoved();
+            int bonus = switch (lines) {
+                case 1 -> 50;
+                case 2 -> 120;
+                case 3 -> 360;
+                case 4 -> 1500;
+                default -> 0;
+            };
+
+            if (bonus > 0) {
+                NotificationPanel notificationPanel = new NotificationPanel("+" + bonus);
+                groupNotification.getChildren().add(notificationPanel);
+                notificationPanel.showScore(groupNotification.getChildren());
+                
+                if (board != null) {
+                    board.getScore().add(bonus);
+                }
+            }   
+        }
+        
+        gamePanel.requestFocus();
+
+        }
+
+    private int[][] boardMatrixFromDownData(DownData data) {
+        ViewData view = data.getViewData();
+        return view != null ? view.getBrickData() : new int[0][0];
+    }
+
+    private Board board;
+    public void setBoard (Board board) {
+        this.board = board;
     }
 }
