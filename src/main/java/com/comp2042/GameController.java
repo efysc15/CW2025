@@ -13,6 +13,7 @@ public class GameController implements InputEventListener {
         if (board instanceof SimpleBoard simpleBoard) {
             simpleBoard.setNextBrickConsumer(viewGuiController::showNextBrick); // Show next brick in GUI
             viewGuiController.showNextBrick(simpleBoard.getNextBrick());    // Display the next brick preview
+            simpleBoard.setGameOverRow(0);
         }
 
         board.createNewBrick();

@@ -17,6 +17,7 @@ public class SimpleBoard implements Board {
     private Point currentOffset;
     private final Score score;
     private Consumer<Brick>nextBrickConsumer; // Used to show the next brick in GUI
+    private int gameOverRow = 2;
 
     // Set action to update the next brick preview
     public void setNextBrickConsumer(Consumer<Brick> nextBrickConsumer) {
@@ -35,6 +36,10 @@ public class SimpleBoard implements Board {
         brickGenerator = new RandomBrickGenerator();
         brickRotator = new BrickRotator();
         score = new Score();
+    }
+
+    public void setGameOverRow(int row) {
+        this.gameOverRow = row;
     }
 
     @Override
@@ -97,7 +102,7 @@ public class SimpleBoard implements Board {
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        currentOffset = new Point(4, 10);
+        currentOffset = new Point(4, gameOverRow);
 
         // If the next brick display is set up, show the next brick in the GUI
         if (nextBrickConsumer != null) {
