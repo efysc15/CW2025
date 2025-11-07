@@ -75,4 +75,9 @@ public class GameController implements InputEventListener {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
     }
+
+    @Override
+    public int[][] getBoardMatrix() {
+        return board.getBoardMatrix();
+    }
 }

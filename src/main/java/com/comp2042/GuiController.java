@@ -1,6 +1,7 @@
 package com.comp2042;
 
 import com.comp2042.logic.bricks.Brick;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 
 public class GuiController implements Initializable {
 
@@ -57,6 +59,8 @@ public class GuiController implements Initializable {
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
     private Stage stage;
+
+    private GhostBrick ghostBrick;
 
     @FXML
     private GridPane nextBrickPanel;
@@ -150,6 +154,20 @@ public class GuiController implements Initializable {
             }
         }
 
+        // Initialize ghost brick
+        ghostBrick = new GhostBrick(boardMatrix.length, boardMatrix[0].length);
+
+        for (int i = 2; i < boardMatrix.length; i++) {
+            for (int j = 0; j < boardMatrix[i].length; j++) {
+                Rectangle ghostRect = ghostBrick.getRectangles()[i][j];
+                ghostRect.setManaged(false);
+                ghostRect.setMouseTransparent(true);
+                ghostRect.setTranslateX(j * (BRICK_SIZE + gamePanel.getVgap()));
+                ghostRect.setTranslateY((i - 1) * BRICK_SIZE);
+                gamePanel.getChildren().add(ghostRect);
+            }
+        }
+
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -162,13 +180,18 @@ public class GuiController implements Initializable {
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
-
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
+    }
+
+    private void updateGhostView(int[][] boardMatrix, ViewData brick) {
+        if (ghostBrick != null && boardMatrix != null && brick != null) {
+            ghostBrick.updateGhost(boardMatrix, brick);
+        }
     }
 
     private Paint getFillColor(int i) {
@@ -209,12 +232,13 @@ public class GuiController implements Initializable {
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-50 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
+            updateGhostView(eventListener.getBoardMatrix(), brick);
         }
     }
 
