@@ -88,18 +88,24 @@ public class GameController implements InputEventListener {
         return board.getBoardMatrix();
     }
 
+    /**
+     * Handles when the player presses SHIFT to hold or swap bricks
+     */
     @Override
     public void onHoldEvent() {
         if (!(board instanceof SimpleBoard simpleBoard)) { 
             return;
         }
 
+        // Prevent multiple holds in a single drop
         if (holdBrickManager.hasHeldThisTurn()) {
             return; 
         }
 
+            // Get current active brick from the board
             Brick currentBrick = simpleBoard.getBrickRotator().getBrick();
             Brick newCurrent = holdBrickManager.holdBrick(currentBrick);
+            // Swap or create a new brick
             if (newCurrent != null) {
                 simpleBoard.getBrickRotator().setBrick(newCurrent);
             } else {
