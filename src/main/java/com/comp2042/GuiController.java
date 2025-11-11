@@ -117,26 +117,40 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
     }
 
+    /**
+     * Displays the 'Next Brick' preview in the side panel
+     * This method clears the current preview and draws the upcoming brick
+     * centered inside the next brick panel
+     * @param nextBricks the next brick object to be displayed in the preview
+     */
     public void showNextBrick (Brick nextBricks) {
+        // Safety check: if panel or brick is missing, do nothing
         if (nextBrickPanel == null) return;
         nextBrickPanel.getChildren().clear();
 
         if (nextBricks == null) return;
 
+        // Get the brick's shape and color based on its ID
         int[][] shape = nextBricks.getShapeMatrix().get(0);
         int brickId = nextBricks.getId();
         Paint color = getFillColor(brickId);
 
+        // Each small square (block) size in pixels
         int previewSize = 18;
+        
+        // Get dimensions of the brick's current shape
         int shapeHeight = shape.length;
         int shapeWidth = shape[0].length;
 
+        // Define the grid dimensions for the preview box
         int panelCols = 6;
         int panelRows = 6;
 
+        // Calculate offset values to center the brick in the preview panel
         int offsetX = (panelCols - shapeWidth) / 2;
         int offsetY = (panelRows - shapeHeight) / 2;
 
+        // Draw each filled block of the brick on the panel
         for (int i = 0; i < shapeHeight; i++) {
             for (int j = 0; j < shapeWidth; j++) {
                 if (shape[i][j] != 0) {
@@ -147,6 +161,7 @@ public class GuiController implements Initializable {
             }
         }
 
+        // Center the grid content within the panel visually
         nextBrickPanel.setAlignment(Pos.CENTER);
     }
 
