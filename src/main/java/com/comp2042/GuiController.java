@@ -67,6 +67,9 @@ public class GuiController implements Initializable {
 
     @FXML Label scoreLabel;
 
+    @FXML 
+    private GridPane holdBrickPanel;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
@@ -94,6 +97,10 @@ public class GuiController implements Initializable {
                     }
                     if (keyEvent.getCode() == KeyCode.ENTER || keyEvent.getCode() == KeyCode.SPACE) {
                         hardDrop();
+                        keyEvent.consume();
+                    }
+                    if (keyEvent.getCode() == KeyCode.SHIFT) {
+                        eventListener.onHoldEvent();
                         keyEvent.consume();
                     }
                 }
@@ -177,6 +184,7 @@ public class GuiController implements Initializable {
                 brickPanel.add(rectangle, j, i);
             }
         }
+
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
@@ -186,6 +194,7 @@ public class GuiController implements Initializable {
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
+
     }
 
     private void updateGhostView(int[][] boardMatrix, ViewData brick) {
@@ -229,7 +238,7 @@ public class GuiController implements Initializable {
     }
 
 
-    private void refreshBrick(ViewData brick) {
+    public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
             brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
@@ -354,5 +363,9 @@ public class GuiController implements Initializable {
     private Board board;
     public void setBoard (Board board) {
         this.board = board;
+    }
+
+    public GridPane getHoldBrickPanel() {
+        return holdBrickPanel;
     }
 }

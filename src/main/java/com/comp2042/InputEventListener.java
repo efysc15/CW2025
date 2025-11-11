@@ -13,4 +13,6 @@ public interface InputEventListener {
     void createNewGame();
 
     int[][] getBoardMatrix();
+
+    void onHoldEvent();
 }

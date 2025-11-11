@@ -42,6 +42,15 @@ public class SimpleBoard implements Board {
         this.gameOverRow = row;
     }
 
+    public BrickRotator getBrickRotator() {
+        return brickRotator;
+    }
+
+    public void setCurrentBrick(Brick brick) {
+        brickRotator.setBrick(brick);
+        currentOffset = new Point (4, gameOverRow); // Reset spawn position
+    }
+
     @Override
     public boolean moveBrickDown() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);

@@ -1,13 +1,19 @@
 package com.comp2042;
 
+import com.comp2042.logic.bricks.Brick;
+
 public class GameController implements InputEventListener {
 
     private Board board = new SimpleBoard(25, 10);
 
     private final GuiController viewGuiController;
 
+    private HoldBrick holdBrickManager;
+    private boolean hasHeldThisTurn = false;
+
     public GameController(GuiController c) {
         viewGuiController = c;
+        this.holdBrickManager = new HoldBrick(c.getHoldBrickPanel());
 
         // Set up next brick display (if the board is SimpleBoard)
         if (board instanceof SimpleBoard simpleBoard) {
@@ -47,6 +53,7 @@ public class GameController implements InputEventListener {
             }
 
             viewGuiController.refreshGameBackground(board.getBoardMatrix());
+            holdBrickManager.setHasHeldThisTurn(false);
         } 
         return new DownData(clearRow, board.getViewData(), landed);
     }
@@ -80,4 +87,28 @@ public class GameController implements InputEventListener {
     public int[][] getBoardMatrix() {
         return board.getBoardMatrix();
     }
+
+    @Override
+    public void onHoldEvent() {
+        if (!(board instanceof SimpleBoard simpleBoard)) { 
+            return;
+        }
+
+        if (holdBrickManager.hasHeldThisTurn()) {
+            return; 
+        }
+
+            Brick currentBrick = simpleBoard.getBrickRotator().getBrick();
+            Brick newCurrent = holdBrickManager.holdBrick(currentBrick);
+            if (newCurrent != null) {
+                simpleBoard.getBrickRotator().setBrick(newCurrent);
+            } else {
+                simpleBoard.createNewBrick();   // If no brick was previously held, get a new one
+            }
+
+            holdBrickManager.setHasHeldThisTurn(true);
+
+            viewGuiController.refreshBrick(board.getViewData());
+            viewGuiController.refreshGameBackground(board.getBoardMatrix());
+        }
 }
