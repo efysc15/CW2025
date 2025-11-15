@@ -17,7 +17,7 @@ public class SimpleBoard implements Board {
     private Point currentOffset;
     private final Score score;
     private Consumer<Brick>nextBrickConsumer; // Used to show the next brick in GUI
-    private int gameOverRow = 2;
+    private int gameOverRow = 5;
 
     // Set action to update the next brick preview
     public void setNextBrickConsumer(Consumer<Brick> nextBrickConsumer) {
@@ -48,7 +48,7 @@ public class SimpleBoard implements Board {
 
     public void setCurrentBrick(Brick brick) {
         brickRotator.setBrick(brick);
-        currentOffset = new Point (4, gameOverRow); // Reset spawn position
+        currentOffset = new Point (4, gameOverRow - 1); // Reset spawn position
     }
 
     @Override
@@ -111,7 +111,7 @@ public class SimpleBoard implements Board {
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        currentOffset = new Point(4, gameOverRow);
+        currentOffset = new Point(4, gameOverRow + 1);
 
         // If the next brick display is set up, show the next brick in the GUI
         if (nextBrickConsumer != null) {

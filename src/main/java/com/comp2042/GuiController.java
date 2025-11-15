@@ -1,5 +1,8 @@
 package com.comp2042;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import com.comp2042.logic.bricks.Brick;
 
 import javafx.animation.KeyFrame;
@@ -11,24 +14,21 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 import javafx.stage.Stage;
-import javafx.scene.control.Label;
-
-import java.net.URL;
-import java.util.ResourceBundle;
-
-import javafx.geometry.Pos;
-import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 public class GuiController implements Initializable {
 
@@ -69,6 +69,9 @@ public class GuiController implements Initializable {
 
     @FXML 
     private GridPane holdBrickPanel;
+
+    @FXML
+    private HBox buttonBar;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -115,6 +118,36 @@ public class GuiController implements Initializable {
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+
+        // Create the Button bar
+        GameControls buttons = new GameControls();
+        
+        // Add the buttons to the FXML - defined HBox
+        buttonBar.getChildren().addAll(
+            buttons.getPauseButton(),
+            buttons.getResumeButton(),
+            buttons.getExitButton()
+        );
+
+        // Button actions 
+        buttons.getPauseButton().setOnAction(e -> {
+            isPause.set(true);
+        });
+
+        buttons.getResumeButton().setOnAction(e -> {
+            isPause.set(false);
+            gamePanel.requestFocus();
+        });
+
+        buttons.getExitButton().setOnAction(e -> {
+            Stage currentStage;
+            if (stage != null) {
+                currentStage = stage;
+            } else {
+                currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+            }
+            currentStage.close();
+        });
     }
 
     /**
