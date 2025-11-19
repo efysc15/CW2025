@@ -46,7 +46,17 @@
         <VBox alignment="CENTER">
             <GameOverPanel fx:id="gameOverPanel"/>
         </VBox>
-    </Group>
+
+    </HBox>
+
+    <!-- ================= 2. GAME OVER NOTIFICATION (FULL WINDOW LAYER) ================= -->
+    <!-- This StackPane is initially invisible and covers the whole screen when game over -->
+    <StackPane fx:id="groupNotification" visible="false" style="-fx-background-color: rgba(0, 0, 0, 0.85);"> 
+        <!-- The GameOverPanel component is instantiated here -->
+        <GameOverPanel fx:id="gameOverPanel" 
+                       StackPane.alignment="CENTER"/> 
+    </StackPane>
+
 
     <stylesheets>
         <URL value="@window_style.css"/>

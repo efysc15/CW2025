@@ -34,50 +34,46 @@ public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
 
-    @FXML
-    private GridPane gamePanel;
-
-    @FXML
-    private Group groupNotification;
-
-    @FXML
-    private GridPane brickPanel;
-
-    @FXML
-    private GameOverPanel gameOverPanel;
+    @FXML private GridPane gamePanel;
+    @FXML private StackPane groupNotification;
+    @FXML private GridPane brickPanel;
+    @FXML private GameOverPanel gameOverPanel; 
+    @FXML private GridPane nextBrickPanel;
+    @FXML private Label scoreLabel;
+    @FXML private GridPane holdBrickPanel;
+    @FXML private VBox buttonBar;
+    @FXML private StackPane pauseOverlay;
+    @FXML private VBox resumeContainer;
 
     private Rectangle[][] displayMatrix;
-
     private InputEventListener eventListener;
-
     private Rectangle[][] rectangles;
-
     private Timeline timeLine;
-
     private final BooleanProperty isPause = new SimpleBooleanProperty();
-
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
-
-    private Stage stage;
-
     private GhostBrick ghostBrick;
-
-    @FXML
-    private GridPane nextBrickPanel;
-
-    @FXML Label scoreLabel;
-
-    @FXML 
-    private GridPane holdBrickPanel;
-
-    @FXML
-    private HBox buttonBar;
+    private Board board; 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        // Load font and set focus
+        try {
+            Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        } catch (Exception e) {
+            System.out.println("Font loading failed");
+        }
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+        
+        if (groupNotification != null) {
+             groupNotification.setVisible(false);
+        }
+        
+        if (gameOverPanel != null) {
+            gameOverPanel.setup(() -> newGame(null));
+        }
+
+        // --- Keyboard Event Handling ---
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -108,18 +104,13 @@ public class GuiController implements Initializable {
                     }
                 }
                 if (keyEvent.getCode() == KeyCode.N) {
-                    newGame(null);
+                    newGame(null); 
                 }
             }
         });
-        gameOverPanel.setVisible(false);
 
-        final Reflection reflection = new Reflection();
-        reflection.setFraction(0.8);
-        reflection.setTopOpacity(0.9);
-        reflection.setTopOffset(-12);
-
-        // Create the Button bar
+        // --- Sidebar Button Setup ---
+        // Instantiate your external GameControls class
         GameControls buttons = new GameControls();
         
         // Add the buttons to the FXML - defined HBox
@@ -335,22 +326,23 @@ public class GuiController implements Initializable {
     }
 
     public void gameOver() {
-        timeLine.stop();
-        gameOverPanel.setVisible(true);
+        if (timeLine != null) timeLine.stop();
+        if (groupNotification != null) groupNotification.setVisible(true);
+        if (gameOverPanel != null) gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
-
-        if (gameOverPanel.lookup ("#newGameButton") == null) {
-            GameOverButton buttons = new GameOverButton(stage, () -> newGame(null));
-            gameOverPanel.getChildren().add(buttons);
-        } 
     }
 
     public void newGame(ActionEvent actionEvent) {
-        timeLine.stop();
-        gameOverPanel.setVisible(false);
-        eventListener.createNewGame();
+        if (timeLine != null) timeLine.stop();
+        if (groupNotification != null) groupNotification.setVisible(false);
+        if (gameOverPanel != null) gameOverPanel.setVisible(false);
+        
+        if (eventListener != null) {
+            eventListener.createNewGame();
+        }
+        
         gamePanel.requestFocus();
-        timeLine.play();
+        if (timeLine != null) timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
     }

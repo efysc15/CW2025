@@ -3,30 +3,35 @@ package com.comp2042;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.scene.paint.Color; 
 
 
 public class GameOverPanel extends VBox {
 
     public GameOverPanel() {
         Label gameOverLabel = new Label("GAME OVER");
+        gameOverLabel.setTextFill(Color.WHITE); 
         gameOverLabel.getStyleClass().add("gameOverStyle");
-
-        // Center everything and add some space between
+        
         setAlignment(Pos.CENTER);
         setSpacing(20);
+
         getChildren().addAll(gameOverLabel);
-
-        // Hide it by default until the game is over
-        setVisible(false);       
     }
-
-    public GameOverPanel (Stage stage, Runnable newGameAction) {
-        this(); // Reuse the basic layout setup above
-        // Create "New Game" and "Exit" buttons
-        GameOverButton buttons = new GameOverButton (stage, newGameAction);
-
-        getChildren().add(buttons); // Add buttons below the "GAME OVER" label 
+    
+    /**
+     * Public method to perform application-specific initialization, 
+     * called by the GuiController after the FXML component is loaded.
+     * This method adds the actual "New Game" and "Exit" buttons.
+     * @param newGameAction The Runnable action to start a new game.
+     */
+    public void setup(Runnable newGameAction) {
+        // Only create and add the button container once to prevent duplicates
+        if (this.lookup("#gameOverButtons") == null) {
+            // Instantiate the GameOverButton component, passing the required action
+            GameOverButton buttons = new GameOverButton(newGameAction);
+            buttons.setId("gameOverButtons"); 
+            getChildren().add(buttons); 
+        }
     }
-
 }
