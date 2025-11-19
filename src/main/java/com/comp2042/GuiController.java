@@ -14,15 +14,16 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Button; 
 import javafx.scene.control.Label;
-import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -122,68 +123,70 @@ public class GuiController implements Initializable {
         // Create the Button bar
         GameControls buttons = new GameControls();
         
-        // Add the buttons to the FXML - defined HBox
-        buttonBar.getChildren().addAll(
-            buttons.getPauseButton(),
-            buttons.getResumeButton(),
-            buttons.getExitButton()
-        );
+        // Get the styled buttons
+        Button pauseBtn = buttons.getPauseButton();
+        Button resumeBtn = buttons.getResumeButton();
+        Button exitBtn = buttons.getExitButton();
+        
+        // Add buttons to the VBox containers (clearing any placeholders first)
+        if (buttonBar != null) {
+            buttonBar.getChildren().clear();
+            buttonBar.getChildren().addAll(pauseBtn, exitBtn);
+        }
 
-        // Button actions 
-        buttons.getPauseButton().setOnAction(e -> {
+        if (resumeContainer != null) {
+            resumeContainer.getChildren().clear();
+            resumeContainer.getChildren().add(resumeBtn);
+        }
+
+        // --- Define Button Actions ---
+
+        // PAUSE Action
+        pauseBtn.setOnAction(e -> {
             isPause.set(true);
+            if (pauseOverlay != null) pauseOverlay.setVisible(true);
+            if (timeLine != null) timeLine.pause();
         });
 
-        buttons.getResumeButton().setOnAction(e -> {
+        // RESUME Action
+        resumeBtn.setOnAction(e -> {
             isPause.set(false);
+            if (pauseOverlay != null) pauseOverlay.setVisible(false);
             gamePanel.requestFocus();
+            if (timeLine != null) timeLine.play();
         });
 
-        buttons.getExitButton().setOnAction(e -> {
-            Stage currentStage;
-            if (stage != null) {
-                currentStage = stage;
-            } else {
-                currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+        // EXIT Action
+        exitBtn.setOnAction(e -> {
+            // Find the current Stage using the button's scene reference
+            Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+            if (currentStage != null) {
+                currentStage.close();
             }
-            currentStage.close();
         });
     }
 
-    /**
-     * Displays the 'Next Brick' preview in the side panel
-     * This method clears the current preview and draws the upcoming brick
-     * centered inside the next brick panel
-     * @param nextBricks the next brick object to be displayed in the preview
-     */
     public void showNextBrick (Brick nextBricks) {
-        // Safety check: if panel or brick is missing, do nothing
         if (nextBrickPanel == null) return;
         nextBrickPanel.getChildren().clear();
 
         if (nextBricks == null) return;
 
-        // Get the brick's shape and color based on its ID
         int[][] shape = nextBricks.getShapeMatrix().get(0);
         int brickId = nextBricks.getId();
         Paint color = getFillColor(brickId);
 
-        // Each small square (block) size in pixels
         int previewSize = 18;
         
-        // Get dimensions of the brick's current shape
         int shapeHeight = shape.length;
         int shapeWidth = shape[0].length;
 
-        // Define the grid dimensions for the preview box
         int panelCols = 6;
         int panelRows = 6;
 
-        // Calculate offset values to center the brick in the preview panel
         int offsetX = (panelCols - shapeWidth) / 2;
         int offsetY = (panelRows - shapeHeight) / 2;
 
-        // Draw each filled block of the brick on the panel
         for (int i = 0; i < shapeHeight; i++) {
             for (int j = 0; j < shapeWidth; j++) {
                 if (shape[i][j] != 0) {
@@ -194,11 +197,11 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Center the grid content within the panel visually
         nextBrickPanel.setAlignment(Pos.CENTER);
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {
+        // Initialize the main game grid
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
@@ -223,6 +226,7 @@ public class GuiController implements Initializable {
             }
         }
 
+        // Initialize the current falling brick view
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -254,33 +258,15 @@ public class GuiController implements Initializable {
     private Paint getFillColor(int i) {
         Paint returnPaint;
         switch (i) {
-            case 0:
-                returnPaint = Color.TRANSPARENT;
-                break;
-            case 1:
-                returnPaint = Color.AQUA;
-                break;
-            case 2:
-                returnPaint = Color.BLUEVIOLET;
-                break;
-            case 3:
-                returnPaint = Color.DARKGREEN;
-                break;
-            case 4:
-                returnPaint = Color.YELLOW;
-                break;
-            case 5:
-                returnPaint = Color.RED;
-                break;
-            case 6:
-                returnPaint = Color.BEIGE;
-                break;
-            case 7:
-                returnPaint = Color.BURLYWOOD;
-                break;
-            default:
-                returnPaint = Color.WHITE;
-                break;
+            case 0: returnPaint = Color.TRANSPARENT; break;
+            case 1: returnPaint = Color.AQUA; break;
+            case 2: returnPaint = Color.BLUEVIOLET; break;
+            case 3: returnPaint = Color.DARKGREEN; break;
+            case 4: returnPaint = Color.YELLOW; break;
+            case 5: returnPaint = Color.RED; break;
+            case 6: returnPaint = Color.BEIGE; break;
+            case 7: returnPaint = Color.BURLYWOOD; break;
+            default: returnPaint = Color.WHITE; break;
         }
         return returnPaint;
     }

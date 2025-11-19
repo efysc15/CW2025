@@ -99,6 +99,6 @@ public class Menu {
         root.getChildren().addAll(title, startButton, menuBtn, drawerContent);
         root.setStyle("-fx-background-color: black; -fx-padding: 40;");
 
-        return new Scene (root, 450, 600);
+        return new Scene (root, 900, 600);
     }
 }
