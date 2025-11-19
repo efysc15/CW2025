@@ -38,6 +38,7 @@ public class GhostBrick {
         while (canMoveDown(boardMatrix, brick, offsetY)) {
             offsetY++;
         }
+        offsetY --;
 
         int[][] brickData = brick.getBrickData();
         for (int i = 0; i < brickData.length; i++) {
@@ -60,7 +61,7 @@ public class GhostBrick {
         for (int i = 0; i < brickData.length; i++) {
             for (int j = 0; j < brickData[i].length; j++) {
                 if (brickData[i][j] != 0) {
-                    int boardY = y + i + 1;
+                    int boardY = y + i;
                     int boardX = x + j;
 
                     // If touching bottom edge

@@ -47,35 +47,22 @@ public class GuiController implements Initializable {
     private GameOverPanel gameOverPanel;
 
     private Rectangle[][] displayMatrix;
-
     private InputEventListener eventListener;
-
     private Rectangle[][] rectangles;
-
     private Timeline timeLine;
-
     private final BooleanProperty isPause = new SimpleBooleanProperty();
-
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
-
-    private Stage stage;
-
     private GhostBrick ghostBrick;
-
-    @FXML
-    private GridPane nextBrickPanel;
-
-    @FXML Label scoreLabel;
-
-    @FXML 
-    private GridPane holdBrickPanel;
-
-    @FXML
-    private HBox buttonBar;
+    private Board board; 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        // Load font and set focus
+        try {
+            Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        } catch (Exception e) {
+            System.out.println("Font loading failed");
+        }
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -212,13 +199,25 @@ public class GuiController implements Initializable {
         // Initialize ghost brick
         ghostBrick = new GhostBrick(boardMatrix.length, boardMatrix[0].length);
 
+        // --- GHOST BRICK ALIGNMENT ---
+        // Coordinates are local to gamePanel (GridPane).
+        Insets padding = gamePanel.getPadding();
+        final double X_OFFSET = gamePanel.getLayoutX() + padding.getLeft();
+        final double Y_OFFSET = gamePanel.getLayoutY() + padding.getTop();
+        
+        double cellWidth = BRICK_SIZE + gamePanel.getHgap();
+        double cellHeight = BRICK_SIZE + gamePanel.getVgap();
+
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle ghostRect = ghostBrick.getRectangles()[i][j];
                 ghostRect.setManaged(false);
                 ghostRect.setMouseTransparent(true);
-                ghostRect.setTranslateX(j * (BRICK_SIZE + gamePanel.getVgap()));
-                ghostRect.setTranslateY((i - 1) * BRICK_SIZE);
+                
+                // Calculate local translation
+                ghostRect.setTranslateX(X_OFFSET + j * cellWidth);
+                ghostRect.setTranslateY(Y_OFFSET + (i - 2) * cellHeight);
+                
                 gamePanel.getChildren().add(ghostRect);
             }
         }
@@ -233,8 +232,9 @@ public class GuiController implements Initializable {
             }
         }
 
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        // Position the falling brick panel
+        brickPanel.setLayoutX(X_OFFSET + brick.getxPosition() * cellWidth);
+        brickPanel.setLayoutY(-42 + Y_OFFSET + brick.getyPosition() * cellHeight);
 
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
@@ -242,7 +242,6 @@ public class GuiController implements Initializable {
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
-
     }
 
     private void updateGhostView(int[][] boardMatrix, ViewData brick) {
@@ -288,8 +287,16 @@ public class GuiController implements Initializable {
 
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            // Recalculate alignment offsets
+            Insets padding = gamePanel.getPadding();
+            final double X_OFFSET = gamePanel.getLayoutX() + padding.getLeft();
+            final double Y_OFFSET = gamePanel.getLayoutY() + padding.getTop();
+            double cellWidth = BRICK_SIZE + gamePanel.getHgap();
+            double cellHeight = BRICK_SIZE + gamePanel.getVgap();
+
+            brickPanel.setLayoutX(X_OFFSET + brick.getxPosition() * cellWidth);
+            brickPanel.setLayoutY(-42 + Y_OFFSET + brick.getyPosition() * cellHeight);
+            
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -335,22 +342,23 @@ public class GuiController implements Initializable {
     }
 
     public void gameOver() {
-        timeLine.stop();
-        gameOverPanel.setVisible(true);
+        if (timeLine != null) timeLine.stop();
+        if (groupNotification != null) groupNotification.setVisible(true);
+        if (gameOverPanel != null) gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
-
-        if (gameOverPanel.lookup ("#newGameButton") == null) {
-            GameOverButton buttons = new GameOverButton(stage, () -> newGame(null));
-            gameOverPanel.getChildren().add(buttons);
-        } 
     }
 
     public void newGame(ActionEvent actionEvent) {
-        timeLine.stop();
-        gameOverPanel.setVisible(false);
-        eventListener.createNewGame();
+        if (timeLine != null) timeLine.stop();
+        if (groupNotification != null) groupNotification.setVisible(false);
+        if (gameOverPanel != null) gameOverPanel.setVisible(false);
+        
+        if (eventListener != null) {
+            eventListener.createNewGame();
+        }
+        
         gamePanel.requestFocus();
-        timeLine.play();
+        if (timeLine != null) timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
     }
@@ -367,15 +375,14 @@ public class GuiController implements Initializable {
         DownData downData;
         boolean landed = false;
 
-        // Drop the brick all the way down
         do { 
             downData = eventListener.onDownEvent(new MoveEvent (EventType.DOWN, EventSource.USER));
             landed = downData.isLanded();
             refreshBrick(downData.getViewData());
         } while (!landed);
 
-        if (board != null) {
-            refreshGameBackground(boardMatrixFromDownData(downData));
+        if (eventListener.getBoardMatrix() != null) {
+            refreshGameBackground(eventListener.getBoardMatrix());
         }
 
         if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
@@ -398,17 +405,9 @@ public class GuiController implements Initializable {
                 }
             }   
         }
-        
         gamePanel.requestFocus();
-
-        }
-
-    private int[][] boardMatrixFromDownData(DownData data) {
-        ViewData view = data.getViewData();
-        return view != null ? view.getBrickData() : new int[0][0];
     }
 
-    private Board board;
     public void setBoard (Board board) {
         this.board = board;
     }
