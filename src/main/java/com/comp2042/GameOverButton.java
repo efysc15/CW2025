@@ -8,26 +8,48 @@ import javafx.stage.Stage;
  
 public class GameOverButton extends VBox{
 
-    public GameOverButton(Stage stage, Runnable newGameAction) {
-        Button newGameButton = new Button ("New Game");
-        Button exitButton = new Button ("Exit Game");
+    /**
+     * Creates the buttons and attaches their actions, applying inline styles.
+     * @param newGameAction The Runnable action to be executed when 'New Game' is clicked.
+     */
+    public GameOverButton(Runnable newGameAction) {
+        Button newGameButton = new Button ("NEW GAME (N)"); 
+        Button exitButton = new Button ("EXIT GAME");
 
+        // Define the inline style for the neon theme.
+        String neonStyle = 
+            "-fx-background-color: black; " +             // Black Background
+            "-fx-text-fill: white; " +                    // White Text
+            "-fx-border-color: #00FFFF; " +               // Neon Blue/Cyan Border
+            "-fx-border-width: 2px; " +
+            "-fx-border-radius: 5px; " +
+            "-fx-padding: 8px 15px; " +
+            "-fx-font-size: 14px; " +
+            "-fx-font-weight: bold; " +
+            // Add a dropshadow effect for the neon glow
+            "-fx-effect: dropshadow(gaussian, #00FFFF, 10, 0.5, 0, 0);"; 
+
+        // Apply the inline style to both buttons
+        newGameButton.setStyle(neonStyle);
+        exitButton.setStyle(neonStyle);
+        
+        // Set IDs for easy styling/lookup if needed (still useful for other purposes)
         newGameButton.setId("newGameButton");
         exitButton.setId("exitButton");
 
-        // Button Actions
+        // --- Button Actions ---
+        
+        // 1. New Game action simply runs the callback provided by the GuiController
         newGameButton.setOnAction(e -> newGameAction.run());
+        
+        // 2. Exit action finds the current Stage from the button's scene
         exitButton.setOnAction(e -> {
-            Stage currentStage;
-            if (stage != null) {
-                currentStage = stage;
-            } else {
-                currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            }
+            // Find the current Stage using the button's scene reference
+            Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
             currentStage.close();
         });
 
-        // Layout settings
+        // --- Layout settings ---
         setAlignment (Pos.CENTER);
         setSpacing (15);
         getChildren().addAll(newGameButton, exitButton);
