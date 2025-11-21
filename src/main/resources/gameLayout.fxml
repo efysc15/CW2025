@@ -11,20 +11,25 @@
              -fx-background-position: center;">
 
     <!-- ================= 1. MAIN GAME LAYOUT (HBox) ================= -->
-    <HBox alignment="TOP_CENTER" spacing="30">
+    <HBox alignment="TOP_CENTER" spacing="30" maxWidth="650" maxHeight="550" style="-fx-background-color: black; -fx-border-color: cyan; -fx-border-width: 2; -fx-border-radius: 3; -fx-background-radius: 3; -fx-effect: dropshadow(gaussian, cyan, 20, 0.5, 0, 0);">
         
         <!-- 1. LEFT COLUMN: Hold Panel & Sidebar Buttons (VBox) -->
         <VBox alignment="TOP_CENTER" spacing="20">
             
             <VBox fx:id="holdBrickContainer" alignment="CENTER">
                 <Label text="HOLD" textFill="WHITE"
-                       style="-fx-font-weight: bold; -fx-font-size: 16px"/>
+                       style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 15 0 0 0;"/>
                 <GridPane fx:id="holdBrickPanel"
                           prefHeight="120" prefWidth="120"
-                          style="-fx-background-color: #000000; -fx-border-color: white; -fx-border-width: 2;"/>
+                          style="-fx-background-color: #000000;"/>
             </VBox>
 
             <VBox fx:id="buttonBar" spacing="10" alignment="CENTER"/>
+
+            <VBox fx:id="scoreContainer" alignment="TOP_LEFT">
+                <Label text="SCORE" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
+                <Label fx:id="scoreLabel" text="0" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
+            </VBox>
             
         </VBox>
         
@@ -36,7 +41,7 @@
                     <BorderPane fx:id="gameBoard">
                         <center>
                             <GridPane fx:id="gamePanel" vgap = "1" hgap = "1"
-                                style="-fx-background-color: black; -fx-border-color: cyan; -fx-border-width: 3; -fx-border-radius: 6; -fx-background-radius: 6; -fx-effect: dropshadow(gaussian, cyan, 20, 0.5, 0, 0);" />
+                                style="-fx-background-color: black; -fx-border-color: white; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3; -fx-effect: dropshadow(gaussian, white, 20, 0.5, 0, 0);" />
                         </center>
                     </BorderPane>
 
@@ -55,11 +60,6 @@
                 <GridPane fx:id="nextBrickPanel" hgap="2" vgap="2"
                           prefWidth="120" prefHeight="120"
                           style="-fx-background-color: #000000; -fx-border-color: white; -fx-border-width: 2; -fx-padding: 5"/>
-            </VBox>
-
-            <VBox fx:id="scoreContainer" alignment="TOP_LEFT">
-                <Label text="SCORE" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
-                <Label fx:id="scoreLabel" text="0" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
             </VBox>
             
         </VBox>

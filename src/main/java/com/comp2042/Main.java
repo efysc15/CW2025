@@ -40,7 +40,7 @@ public class Main extends Application {
         GuiController c = fxmlLoader.getController();
 
         // Create the game scene
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1100, 650);
         stage.setScene(scene);
         // Start the GameController
         new GameController(c);
