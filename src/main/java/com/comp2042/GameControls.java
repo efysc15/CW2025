@@ -21,8 +21,10 @@ public class GameControls {
         "-fx-alignment: center;";
 
     private final Button pauseBtn = createButton ("PAUSE");
-    private final Button resumeBtn = createButton ("RESUME");
+    private final Button restartBtn =createButton("RESTART");   // New Button Added
     private final Button exitBtn = createButton ("EXIT");
+
+    private final Button resumeBtn = createButton("RESUME");
 
     /**
      * Helper method to create and apply style to a button
@@ -43,11 +45,15 @@ public class GameControls {
         return pauseBtn;
     }
 
-    public Button getResumeButton() {
-        return resumeBtn;
+    public Button getRestartButton() {
+        return restartBtn;
     }
 
     public Button getExitButton() {
         return exitBtn;
+    }
+
+    public Button getResumeButton() {
+        return resumeBtn;
     }
 }

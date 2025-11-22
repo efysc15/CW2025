@@ -56,10 +56,10 @@
             
             <VBox fx:id="nextBoxContainer" alignment="CENTER">
                 <Label fx:id="nextLabel" text="NEXT" textFill="white"
-                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                       style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 15 0 0 0;"/>
                 <GridPane fx:id="nextBrickPanel" hgap="2" vgap="2"
-                          prefWidth="120" prefHeight="120"
-                          style="-fx-background-color: #000000; -fx-border-color: white; -fx-border-width: 2; -fx-padding: 5"/>
+                          prefWidth="120" prefHeight="500"
+                          style="-fx-background-color: #000000;"/>
             </VBox>
             
         </VBox>

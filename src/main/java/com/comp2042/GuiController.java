@@ -14,7 +14,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button; 
@@ -24,7 +23,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -49,7 +47,7 @@ public class GuiController implements Initializable {
     @FXML private StackPane pauseOverlay;
     @FXML private VBox resumeContainer;
     
-    // Layout Containers
+    // Layout Containers (might not be used in FXML, but kept for context)
     @FXML private VBox holdBrickContainer;
     @FXML private VBox nextBoxContainer;
     @FXML private VBox scoreContainer;
@@ -77,14 +75,15 @@ public class GuiController implements Initializable {
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
         
-        // Setup Notification Layer
+        // --- FIX: Initialize Notification Layer ---
         if (groupNotification != null) {
              groupNotification.setVisible(true); 
              groupNotification.setStyle("-fx-background-color: transparent;");
+             // IMPORTANT: Allow clicks to pass through to buttons underneath (Fixes Pause/Exit button issue)
+             groupNotification.setMouseTransparent(true); 
              groupNotification.setPickOnBounds(false); 
         }
         
-        // Setup Game Over Panel
         if (gameOverPanel != null) {
             gameOverPanel.setVisible(false); 
             gameOverPanel.setup(() -> newGame(null));
@@ -137,10 +136,11 @@ public class GuiController implements Initializable {
         Button pauseBtn = buttons.getPauseButton();
         Button resumeBtn = buttons.getResumeButton();
         Button exitBtn = buttons.getExitButton();
+        Button restartBtn = buttons.getRestartButton();
         
         if (buttonBar != null) {
             buttonBar.getChildren().clear();
-            buttonBar.getChildren().addAll(pauseBtn, exitBtn);
+            buttonBar.getChildren().addAll(pauseBtn, restartBtn, exitBtn);
         }
 
         if (resumeContainer != null) {
@@ -150,22 +150,34 @@ public class GuiController implements Initializable {
 
         // PAUSE Action
         pauseBtn.setOnAction(e -> {
+            System.out.println("PAUSE clicked"); 
             isPause.set(true);
-            if (pauseOverlay != null) pauseOverlay.setVisible(true);
+            if (pauseOverlay != null) {
+                pauseOverlay.setVisible(true);
+                // Ensure overlay blocks clicks to game while paused
+                pauseOverlay.setMouseTransparent(false); 
+            }
             if (timeLine != null) timeLine.pause();
             gamePanel.requestFocus(); 
         });
 
         // RESUME Action
         resumeBtn.setOnAction(e -> {
+            System.out.println("RESUME clicked"); 
             isPause.set(false);
-            if (pauseOverlay != null) pauseOverlay.setVisible(false);
+            if (pauseOverlay != null) {
+                pauseOverlay.setVisible(false);
+            }
             gamePanel.requestFocus();
             if (timeLine != null) timeLine.play();
         });
 
+        // RESTART action
+        restartBtn.setOnAction(e -> newGame(null));
+
         // EXIT Action
         exitBtn.setOnAction(e -> {
+            System.out.println("EXIT clicked"); 
             Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
             if (currentStage != null) {
                 currentStage.close();
@@ -178,6 +190,7 @@ public class GuiController implements Initializable {
 
         int lines = clearRow.getLinesRemoved();
         String notificationText;
+        // Updated notification text based on lines cleared
         switch (lines) {
             case 1: notificationText = "SINGLE"; break;
             case 2: notificationText = "DOUBLE"; break;
@@ -191,7 +204,10 @@ public class GuiController implements Initializable {
         if (groupNotification != null) {
             groupNotification.setVisible(true);
             groupNotification.setStyle("-fx-background-color: transparent;"); 
+            // Allow clicks to pass through the notification layer
+            groupNotification.setMouseTransparent(true); 
             groupNotification.getChildren().add(notificationPanel);
+            
             notificationPanel.showScore(groupNotification.getChildren());
         }
     }
@@ -236,36 +252,44 @@ public class GuiController implements Initializable {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
                 displayMatrix[i][j] = rectangle;
+                // Game panel start index fixed at 2
                 gamePanel.add(rectangle, j, i - 2); 
             }
         }
 
-        // --- FIX START: Reparent brickPanel to stable container ---
-        // This moves brickPanel out of the dynamic 'Group' (which resizes and causes jumping)
-        // and into the stable 'centerStack'.
-        if (brickPanel != null && centerStack != null) {
-             if (brickPanel.getParent() != centerStack) {
-                 if (brickPanel.getParent() instanceof Pane oldParent) {
-                     oldParent.getChildren().remove(brickPanel);
-                 }
-                 centerStack.getChildren().add(brickPanel);
-                 brickPanel.setManaged(false); // Floating, does not affect layout
-                 brickPanel.setMouseTransparent(true);
-             }
-        }
-        // --- FIX END ---
-
         // Initialize ghost brick
         ghostBrick = new GhostBrick(boardMatrix.length, boardMatrix[0].length);
 
+        double cellWidth = BRICK_SIZE + gamePanel.getHgap();
+        double cellHeight = BRICK_SIZE + gamePanel.getVgap();
+        
+        // This is part of the fix to stabilize brick panel movement:
+        // Get coordinates based on gamePanel's layout
+        double panelX = gamePanel.getLayoutX(); 
+        double panelY = gamePanel.getLayoutY();
+        
+        Node parent = brickPanel.getParent(); 
+        
+        // Loop to position Ghost Brick Rectangles
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle ghostRect = ghostBrick.getRectangles()[i][j];
                 ghostRect.setManaged(false);
                 ghostRect.setMouseTransparent(true);
                 
-                // NOTE: We add ghost bricks to centerStack as well for stable positioning
-                if (centerStack != null && !centerStack.getChildren().contains(ghostRect)) {
+                double layoutX = panelX + j * cellWidth;
+                double layoutY = panelY + (i - 2) * cellHeight; 
+                
+                ghostRect.setTranslateX(layoutX);
+                ghostRect.setTranslateY(layoutY);
+
+                // Add ghost brick to the scene's top-level container (Parent of brickPanel)
+                if (parent instanceof javafx.scene.Group) {
+                    if (!((javafx.scene.Group) parent).getChildren().contains(ghostRect)) {
+                        ((javafx.scene.Group) parent).getChildren().add(ghostRect);
+                    }
+                } else if (centerStack != null && !centerStack.getChildren().contains(ghostRect)) {
+                    // Alternative if centerStack is the root pane in your FXML
                     centerStack.getChildren().add(ghostRect);
                 }
             }
@@ -281,8 +305,9 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Initial positioning update
-        updateLayerPositions(brick);
+        // Set the initial position of the current brick's panel
+        brickPanel.setLayoutX(panelX + brick.getxPosition() * cellWidth);
+        brickPanel.setLayoutY(panelY + brick.getyPosition() * cellHeight); 
 
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
@@ -295,69 +320,6 @@ public class GuiController implements Initializable {
     private void updateGhostView(int[][] boardMatrix, ViewData brick) {
         if (ghostBrick != null && boardMatrix != null && brick != null) {
             ghostBrick.updateGhost(boardMatrix, brick);
-        }
-    }
-    
-    /**
-     * Helper method to calculate absolute positions for floating layers (BrickPanel & GhostBrick)
-     * relative to the stable CenterStack container. This prevents jitter.
-     */
-    private void updateLayerPositions(ViewData brick) {
-        if (centerStack == null || gamePanel == null) return;
-        
-        // Ensure we have bounds to work with. If scene isn't ready, this might be 0, 
-        // but refreshBrick calls this constantly so it will correct itself.
-        Bounds gameBounds = gamePanel.getBoundsInParent();
-        // If gamePanel is wrapped in other containers inside centerStack, we might need recursive calculation.
-        // But since gamePanel is inside BorderPane inside Group inside VBox inside centerStack...
-        // Using localToScene is the safest way to find the visual difference.
-        
-        if (gamePanel.getScene() == null) return;
-        
-        Bounds gameToScene = gamePanel.localToScene(gamePanel.getLayoutBounds());
-        Bounds stackToScene = centerStack.localToScene(centerStack.getLayoutBounds());
-        
-        double offsetX = gameToScene.getMinX() - stackToScene.getMinX();
-        double offsetY = gameToScene.getMinY() - stackToScene.getMinY();
-
-        double cellWidth = BRICK_SIZE + gamePanel.getHgap();
-        double cellHeight = BRICK_SIZE + gamePanel.getVgap();
-        
-        // 1. Update Falling Brick Panel
-        if (brickPanel != null) {
-            brickPanel.setTranslateX(offsetX + brick.getxPosition() * cellWidth);
-            // -42 (approx 2 rows) offset logic preserved but adapted to translation
-            brickPanel.setTranslateY(offsetY + (brick.getyPosition() * cellHeight) - (2 * cellHeight));
-        }
-        
-        // 2. Update Ghost Brick positions
-        // GhostBrick update logic handles its own internal structure, we just need to ensure 
-        // the individual rectangles are translated to the right spot on the screen.
-        // However, GhostBrick implementation usually sets properties on the rectangles directly.
-        // We iterate to update them relative to centerStack.
-        
-        // Note: To avoid iterating the whole grid every frame just for offsets, 
-        // usually ghost bricks are updated via 'updateGhostView' which changes their stroke.
-        // We just need to ensure their TRANSLATION is correct.
-        // Since GhostBrick logic sets offsets assuming (0,0), we add the centerStack offset.
-        
-        if (ghostBrick != null) {
-             Rectangle[][] gRects = ghostBrick.getRectangles();
-             for (int i = 0; i < gRects.length; i++) {
-                for (int j = 0; j < gRects[0].length; j++) {
-                    // Logic from GhostBrick usually sets position? 
-                    // If not, we set it here:
-                    // Ghost brick grid logic uses full matrix (including hidden top rows)
-                    // so row 'i' corresponds to actual grid row 'i'.
-                    // We subtract 2 rows height to align with visible grid starting at row 2.
-                    
-                    double gX = offsetX + j * cellWidth;
-                    double gY = offsetY + (i - 2) * cellHeight;
-                    
-                    gRects[i][j].setTranslateX(gX);
-                    gRects[i][j].setTranslateY(gY);
-                }
-             }
         }
     }
 
@@ -380,9 +342,14 @@ public class GuiController implements Initializable {
 
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            
-            // Update absolute positions based on current layout
-            updateLayerPositions(brick);
+            double cellWidth = BRICK_SIZE + gamePanel.getHgap();
+            double cellHeight = BRICK_SIZE + gamePanel.getVgap();
+            double panelX = gamePanel.getLayoutX();
+            double panelY = gamePanel.getLayoutY();
+
+            // Set the new position of the current brick's panel
+            brickPanel.setLayoutX(panelX + brick.getxPosition() * cellWidth);
+            brickPanel.setLayoutY(panelY + brick.getyPosition() * cellHeight);
             
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -428,9 +395,13 @@ public class GuiController implements Initializable {
 
     public void gameOver() {
         if (timeLine != null) timeLine.stop();
+        
         if (groupNotification != null) {
             groupNotification.setVisible(true);
             groupNotification.setStyle("-fx-background-color: rgba(0, 0, 0, 0.85);");
+            
+            // FIX: Enable clicks for Game Over buttons by making the overlay block interaction
+            groupNotification.setMouseTransparent(false); 
             groupNotification.setPickOnBounds(true); 
         }
         if (gameOverPanel != null) {
@@ -441,10 +412,13 @@ public class GuiController implements Initializable {
 
     public void newGame(ActionEvent actionEvent) {
         if (timeLine != null) timeLine.stop();
+        
+        // Reset overlay for gameplay (transparent and click-through)
         if (groupNotification != null) {
             groupNotification.setVisible(true);
             groupNotification.setStyle("-fx-background-color: transparent;");
             groupNotification.setPickOnBounds(false);
+            groupNotification.setMouseTransparent(true); 
         }
         if (gameOverPanel != null) {
             gameOverPanel.setVisible(false);
