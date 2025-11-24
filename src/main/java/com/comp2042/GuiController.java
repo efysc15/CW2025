@@ -1,6 +1,7 @@
 package com.comp2042;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.comp2042.logic.bricks.Brick;
@@ -212,33 +213,38 @@ public class GuiController implements Initializable {
         }
     }
 
-    public void showNextBrick (Brick nextBricks) {
+    // Updated to show a List of Bricks (the Queue)
+    public void showNextBricksQueue (List<Brick> nextBricksQueue) {
         if (nextBrickPanel == null) return;
         nextBrickPanel.getChildren().clear();
 
-        if (nextBricks == null) return;
-
-        int[][] shape = nextBricks.getShapeMatrix().get(0);
-        int brickId = nextBricks.getId();
-        Paint color = getFillColor(brickId);
+        if (nextBricksQueue == null || nextBricksQueue.isEmpty()) return;
 
         int previewSize = 18;
-        int shapeHeight = shape.length;
-        int shapeWidth = shape[0].length;
+        // Vertical accumulator to stack bricks 
+        int yAccumulator = 0;
 
-        int panelCols = 6;
-        int panelRows = 6;
-        int offsetX = (panelCols - shapeWidth) / 2;
-        int offsetY = (panelRows - shapeHeight) / 2;
+        for (Brick brick : nextBricksQueue) {
+            int[][] shape = brick.getShapeMatrix().get(0);
+            int brickId = brick.getId();
+            Paint color = getFillColor(brickId);
 
-        for (int i = 0; i < shapeHeight; i++) {
-            for (int j = 0; j < shapeWidth; j++) {
-                if (shape[i][j] != 0) {
-                    Rectangle rect = new Rectangle (previewSize, previewSize, color);
-                    rect.setStroke(Color.BLACK);
-                    nextBrickPanel.add(rect, j + offsetX, i + offsetY);
+            int shapeHeight = shape.length;
+            int shapeWidth = shape[0].length;
+            int offsetX = (4 - shapeWidth) / 2; // Center in a 4-wide panel
+
+            // Add brick to grid
+            for (int i = 0; i < shapeHeight; i++) {
+                for (int j = 0; j < shapeWidth; j++) {
+                    if (shape[i][j] != 0) {
+                        Rectangle rect = new Rectangle(previewSize, previewSize, color);
+                        rect.setStroke(Color.BLACK);
+                        nextBrickPanel.add(rect, j + offsetX, i + yAccumulator);
+                    }
                 }
             }
+            // Move down for the next brick (height + 1 spacing)
+            yAccumulator += shapeHeight + 30;
         }
         nextBrickPanel.setAlignment(Pos.CENTER);
     }

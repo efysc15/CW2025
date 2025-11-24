@@ -1,6 +1,7 @@
 package com.comp2042;
 
 import java.awt.Point;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.comp2042.logic.bricks.Brick;
@@ -16,18 +17,8 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
-    private Consumer<Brick>nextBrickConsumer; // Used to show the next brick in GUI
+    private Consumer<List<Brick>> nextBricksQueueConsumer; // Updated consumer to handle a List of Bricks for the queue display
     private int gameOverRow = 2;
-
-    // Set action to update the next brick preview
-    public void setNextBrickConsumer(Consumer<Brick> nextBrickConsumer) {
-        this.nextBrickConsumer = nextBrickConsumer;
-    }
-
-    // Get next brick that will appear after the current one 
-    public Brick getNextBrick() {
-        return brickGenerator.getNextBrick();
-    }
 
     public SimpleBoard(int width, int height) {
         this.width = width;
@@ -36,6 +27,21 @@ public class SimpleBoard implements Board {
         brickGenerator = new RandomBrickGenerator();
         brickRotator = new BrickRotator();
         score = new Score();
+    }
+
+    // Set action to update the next brick queue preview 
+    public void setNextBricksQueueConsumer (Consumer<List<Brick>> nextBricksQueueConsumer) {
+        this.nextBricksQueueConsumer = nextBricksQueueConsumer;
+    }
+
+    // Return the queue of next bricks
+    public List<Brick> getNextBricksQueue() {
+        return brickGenerator.getNextBricksQueue();
+    }
+
+    // Get just the immediate the next brick (if needed for logic)
+    public Brick getNextBrick() {
+        return brickGenerator.getNextBrick();
     }
 
     public void setGameOverRow(int row) {
@@ -113,9 +119,9 @@ public class SimpleBoard implements Board {
         brickRotator.setBrick(currentBrick);
         currentOffset = new Point(4, gameOverRow);
 
-        // If the next brick display is set up, show the next brick in the GUI
-        if (nextBrickConsumer != null) {
-            nextBrickConsumer.accept(brickGenerator.getNextBrick());
+        // Notify the GUI with the new queue
+        if (nextBricksQueueConsumer != null) {
+            nextBricksQueueConsumer.accept(brickGenerator.getNextBricksQueue());
         }
 
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
