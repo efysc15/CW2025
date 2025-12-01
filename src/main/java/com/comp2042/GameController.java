@@ -10,10 +10,12 @@ public class GameController implements InputEventListener {
 
     private HoldBrick holdBrickManager;
     private boolean hasHeldThisTurn = false;
+    private final GameMode gameMode;
 
-    public GameController(GuiController c) {
+    public GameController(GuiController c, GameMode mode) {
         viewGuiController = c;
         this.holdBrickManager = new HoldBrick(c.getHoldBrickPanel());
+        this.gameMode = mode;
 
         // Set up next brick display (if the board is SimpleBoard)
         if (board instanceof SimpleBoard simpleBoard) {
@@ -27,6 +29,20 @@ public class GameController implements InputEventListener {
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
         viewGuiController.bindScore(board.getScore().scoreProperty());
+        viewGuiController.bindTimer(viewGuiController.getRemainingSecondsProperty());
+
+        setupGameMode();
+    }
+
+    private void setupGameMode() {
+        if (gameMode == GameMode.TWO_MINUTES) {
+            viewGuiController.startCountdown(120);
+        }
+    }
+
+    private final Timer timer = new Timer();
+    public Timer getTimer() {
+        return timer;
     }
 
     @Override
@@ -82,6 +98,12 @@ public class GameController implements InputEventListener {
     public void createNewGame() {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
+
+        if (gameMode == GameMode.TWO_MINUTES) {
+        viewGuiController.startCountdown(120); // restart timer
+        } else {
+        viewGuiController.resetTimer();        // keep at 00:00
+        }
     }
 
     @Override

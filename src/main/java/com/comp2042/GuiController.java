@@ -11,6 +11,7 @@ import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -57,6 +58,7 @@ public class GuiController implements Initializable {
     @FXML private BorderPane gameBoard;
     @FXML private Label nextLabel;
     @FXML private StackPane centerStack;
+    @FXML private Label timerLabel;
 
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
@@ -66,6 +68,8 @@ public class GuiController implements Initializable {
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
     private GhostBrick ghostBrick;
     private Board board; 
+    private Timeline countdownTimer;
+    private final IntegerProperty remainingSecondsProperty = new SimpleIntegerProperty();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,13 +86,15 @@ public class GuiController implements Initializable {
         if (groupNotification != null) {
              groupNotification.setVisible(true); 
              groupNotification.setStyle("-fx-background-color: transparent;");
+             groupNotification.setMouseTransparent(true);
              groupNotification.setPickOnBounds(false); 
         }
         
         // Setup Game Over Panel
         if (gameOverPanel != null) {
             gameOverPanel.setVisible(false); 
-            gameOverPanel.setup(() -> newGame(null));
+            gameOverPanel.setup(this);
+            gameOverPanel.setMouseTransparent(false);
         }
 
         // --- Keyboard Event Handling ---
@@ -138,10 +144,11 @@ public class GuiController implements Initializable {
         Button pauseBtn = buttons.getPauseButton();
         Button resumeBtn = buttons.getResumeButton();
         Button exitBtn = buttons.getExitButton();
+        Button restartBtn = buttons.getRestartButton();
         
         if (buttonBar != null) {
             buttonBar.getChildren().clear();
-            buttonBar.getChildren().addAll(pauseBtn, exitBtn);
+            buttonBar.getChildren().addAll(pauseBtn, exitBtn, restartBtn);
         }
 
         if (resumeContainer != null) {
@@ -171,6 +178,11 @@ public class GuiController implements Initializable {
             if (currentStage != null) {
                 currentStage.close();
             }
+        });
+
+        // RESTART Action
+        restartBtn.setOnAction(e -> {
+            newGame(null);
         });
     }
 
@@ -432,16 +444,29 @@ public class GuiController implements Initializable {
         scoreLabel.textProperty().bind(integerProperty.asString("%d"));
     }
 
+    public void bindTimer(IntegerProperty secondsProperty) {
+        timerLabel.textProperty().bind(
+            javafx.beans.binding.Bindings.createStringBinding(
+                () -> formatTime(secondsProperty.get()), secondsProperty
+                )
+        );
+    }
+
     public void gameOver() {
-        if (timeLine != null) timeLine.stop();
+        if (timeLine != null) {
+            timeLine.stop();
+        }
         if (groupNotification != null) {
             groupNotification.setVisible(true);
             groupNotification.setStyle("-fx-background-color: rgba(0, 0, 0, 0.85);");
-            groupNotification.setPickOnBounds(true); 
-        }
+            groupNotification.setMouseTransparent(false);
+            groupNotification.setPickOnBounds(true);
+        } 
         if (gameOverPanel != null) {
+            int finalScore = Integer.parseInt(scoreLabel.getText());
+            gameOverPanel.showFinalScore(finalScore);
             gameOverPanel.setVisible(true);
-        }
+        } 
         isGameOver.setValue(Boolean.TRUE);
     }
 
@@ -451,19 +476,26 @@ public class GuiController implements Initializable {
             groupNotification.setVisible(true);
             groupNotification.setStyle("-fx-background-color: transparent;");
             groupNotification.setPickOnBounds(false);
+            groupNotification.setMouseTransparent(true);
         }
         if (gameOverPanel != null) {
             gameOverPanel.setVisible(false);
+            gameOverPanel.setMouseTransparent(false);
         }
-        
+
         if (eventListener != null) {
             eventListener.createNewGame();
         }
-        
+
         gamePanel.requestFocus();
-        if (timeLine != null) timeLine.play();
+        if (timeLine != null) timeLine.playFromStart();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
+
+        if (pauseOverlay != null) {
+            pauseOverlay.setVisible(false);
+            pauseOverlay.setMouseTransparent(false);
+        }
     }
 
     public void pauseGame(ActionEvent actionEvent) {
@@ -500,5 +532,43 @@ public class GuiController implements Initializable {
 
     public GridPane getHoldBrickPanel() {
         return holdBrickPanel;
+    }
+
+    public void startCountdown(int startSeconds) {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
+        
+        remainingSecondsProperty.set(startSeconds);
+
+        countdownTimer = new Timeline(
+            new KeyFrame(Duration.seconds(1), e -> {
+                remainingSecondsProperty.set(remainingSecondsProperty.get() - 1);
+
+                if (remainingSecondsProperty.get() <= 0) {
+                    countdownTimer.stop();
+                    gameOver();
+                }
+            })
+        );    
+        countdownTimer.setCycleCount(startSeconds);
+        countdownTimer.playFromStart();
+    }
+
+    private String formatTime(int totalSeconds) {
+        int mins = totalSeconds / 60;
+        int secs = totalSeconds % 60;
+        return String.format("%02d:%02d", mins, secs);
+    }
+
+    public IntegerProperty getRemainingSecondsProperty() {
+        return remainingSecondsProperty;
+    }
+
+    public void resetTimer() {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
+        remainingSecondsProperty.set(0);
     }
 }

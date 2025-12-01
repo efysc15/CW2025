@@ -11,7 +11,7 @@ import javafx.scene.text.Font;
 
 public class Menu {
     
-    public static Scene getMenuScene(Runnable startGame, int currentScore) {
+    public static Scene getMenuScene(Runnable startClassic, Runnable startTwoMinutes, int currentScore) {
         // Game Title
         Label title = new Label ("TETRIS");
         title.setFont(new Font("Arial Black", 48));
@@ -66,7 +66,7 @@ public class Menu {
         Button menuBtn = new Button ("GAME MENU");
         menuBtn.setFont(new Font("Arial", 20));
         menuBtn.setStyle(
-            "-fx-paddind: 10 25;" + 
+            "-fx-padding: 10 25;" + 
             "-fx-text-fill: white;" +
             "-fx-background-color: transparent;" +
             "-fx-border-color: cyan;" +
@@ -79,11 +79,11 @@ public class Menu {
             drawerContent.setVisible(!drawerContent.isVisible());
         });
 
-        // Start Game Button
-        Button startButton = new Button("START GAME");
-        startButton.setFont(new Font("Arial", 20));
-        startButton.setStyle(
-            "-fx-paddind: 10 35;" + 
+        // Start Classic Mode Button
+        Button classicBtn = new Button("START CLASSIC");
+        classicBtn.setFont(new Font ("Arial", 20));
+        classicBtn.setStyle(
+            "-fx-padding: 10 35;" +
             "-fx-text-fill: white;" +
             "-fx-background-color: transparent;" +
             "-fx-border-color: lime;" +
@@ -91,12 +91,26 @@ public class Menu {
             "-fx-background-radius: 10;" +
             "-fx-border-radius: 10;"
         );
-        startButton.setOnAction(e -> startGame.run());
+        classicBtn.setOnAction(e -> startClassic.run());
+
+        // Start 2 Minutes Mode Button
+        Button timedBtn = new Button ("START 2 MINUTES");
+        timedBtn.setFont(new Font("Arial", 20));
+        timedBtn.setStyle(
+            "-fx-padding: 10 35;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: transparent;" +
+            "-fx-border-color: orange;" +
+            "-fx-border-width: 2;" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-radius: 10;"
+        );
+        timedBtn.setOnAction(e -> startTwoMinutes.run());
 
         // Layout
         VBox root = new VBox (15);
         root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(title, startButton, menuBtn, drawerContent);
+        root.getChildren().addAll(title, classicBtn, timedBtn, menuBtn, drawerContent);
         root.setStyle("-fx-background-color: black; -fx-padding: 40;");
 
         return new Scene (root, 1100, 650);

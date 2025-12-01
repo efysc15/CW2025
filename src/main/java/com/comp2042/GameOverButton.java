@@ -1,18 +1,19 @@
 package com.comp2042;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
  
 public class GameOverButton extends VBox{
+    private final GuiController guiController;
 
     /**
      * Creates the buttons and attaches their actions, applying inline styles.
      * @param newGameAction The Runnable action to be executed when 'New Game' is clicked.
      */
-    public GameOverButton(Runnable newGameAction) {
+    public GameOverButton(GuiController guiController) {
+        this.guiController = guiController;
         Button newGameButton = new Button ("NEW GAME (N)"); 
         Button exitButton = new Button ("EXIT GAME");
 
@@ -40,14 +41,10 @@ public class GameOverButton extends VBox{
         // --- Button Actions ---
         
         // 1. New Game action simply runs the callback provided by the GuiController
-        newGameButton.setOnAction(e -> newGameAction.run());
+        newGameButton.setOnAction(e -> guiController.newGame(e));
         
         // 2. Exit action finds the current Stage from the button's scene
-        exitButton.setOnAction(e -> {
-            // Find the current Stage using the button's scene reference
-            Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            currentStage.close();
-        });
+        exitButton.setOnAction(e -> Platform.exit());
 
         // --- Layout settings ---
         setAlignment (Pos.CENTER);

@@ -19,7 +19,14 @@ public class Main extends Application {
         Scene menuScene = Menu.getMenuScene(
             () -> {
                 try {
-                    startGame(primaryStage);
+                    startGame(primaryStage, GameMode.CLASSIC);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            },
+            () -> {
+                try {
+                    startGame(primaryStage, GameMode.TWO_MINUTES);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -32,7 +39,7 @@ public class Main extends Application {
     }
 
     // Method to start the actual game
-    private void startGame(Stage stage) throws Exception {
+    private void startGame(Stage stage, GameMode mode) throws Exception {
         URL location = getClass().getClassLoader().getResource("gameLayout.fxml");
         ResourceBundle resources = null;
         FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
@@ -43,7 +50,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 1100, 650);
         stage.setScene(scene);
         // Start the GameController
-        new GameController(c);
+        new GameController(c, mode);
     }
     
     public static void main(String[] args) {

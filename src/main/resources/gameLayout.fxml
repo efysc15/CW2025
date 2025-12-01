@@ -29,6 +29,10 @@
             <VBox fx:id="scoreContainer" alignment="TOP_LEFT">
                 <Label text="SCORE" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
                 <Label fx:id="scoreLabel" text="0" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
+
+                <!-- NEW TIMER LABEL -->
+                <Label text = "TIME LEFT" style = "-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
+                <Label fx:id ="timerLabel" text = "02:00" style = "-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"/>
             </VBox>
             
         </VBox>
