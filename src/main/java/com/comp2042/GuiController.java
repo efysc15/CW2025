@@ -19,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button; 
 import javafx.scene.control.Label;
 import javafx.scene.effect.Reflection;
@@ -70,6 +71,7 @@ public class GuiController implements Initializable {
     private Board board; 
     private Timeline countdownTimer;
     private final IntegerProperty remainingSecondsProperty = new SimpleIntegerProperty();
+    private Scene menuScene;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -176,7 +178,7 @@ public class GuiController implements Initializable {
         exitBtn.setOnAction(e -> {
             Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
             if (currentStage != null) {
-                currentStage.close();
+                currentStage.setScene(getMenuScene());;
             }
         });
 
@@ -570,5 +572,13 @@ public class GuiController implements Initializable {
             countdownTimer.stop();
         }
         remainingSecondsProperty.set(0);
+    }
+
+    public void setMenuScene(Scene menuScene) {
+        this.menuScene = menuScene;
+    }
+
+    public Scene getMenuScene() {
+        return menuScene;
     }
 }

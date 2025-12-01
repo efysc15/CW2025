@@ -11,12 +11,12 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     private int currentScore = 0;
-
+    private Scene menuScene;
     @Override
     public void start(Stage primaryStage) {
 
         // Load and show the menu first
-        Scene menuScene = Menu.getMenuScene(
+        menuScene = Menu.getMenuScene(
             () -> {
                 try {
                     startGame(primaryStage, GameMode.CLASSIC);
@@ -45,6 +45,8 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
         Parent root = fxmlLoader.load();
         GuiController c = fxmlLoader.getController();
+
+        c.setMenuScene(menuScene);
 
         // Create the game scene
         Scene scene = new Scene(root, 1100, 650);

@@ -1,9 +1,9 @@
 package com.comp2042;
 
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
  
 public class GameOverButton extends VBox{
     private final GuiController guiController;
@@ -44,7 +44,10 @@ public class GameOverButton extends VBox{
         newGameButton.setOnAction(e -> guiController.newGame(e));
         
         // 2. Exit action finds the current Stage from the button's scene
-        exitButton.setOnAction(e -> Platform.exit());
+        exitButton.setOnAction(e -> {
+            Stage stage = (Stage) exitButton.getScene().getWindow();
+            stage.setScene(guiController.getMenuScene());
+        });
 
         // --- Layout settings ---
         setAlignment (Pos.CENTER);
