@@ -601,4 +601,28 @@ public class GuiController implements Initializable {
     public Scene getMenuScene() {
         return menuScene;
     }
+
+    public void setGroupNotification(StackPane groupNotification) {
+        this.groupNotification = groupNotification;
+    }
+
+    public void setPauseOverlay(StackPane pauseOverlay) {
+        this.pauseOverlay = pauseOverlay;
+    }
+
+    public void setButtonBar(VBox buttonBar) {
+        this.buttonBar = buttonBar;
+    }
+
+    public void setResumeContainer(VBox resumeContainer) {
+        this.resumeContainer = resumeContainer;
+    }
+
+    public Label getScoreLabel() {
+        return scoreLabel;
+    }
+
+    public Label getTimerLabel() {
+        return timerLabel;
+    }
 }
