@@ -4,115 +4,109 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 public class Menu {
-    
+    private static HelpOverlay overlay;
+
     public static Scene getMenuScene(Runnable startClassic, Runnable startTwoMinutes, int currentScore) {
         // Game Title
-        Label title = new Label ("TETRIS");
-        title.setFont(new Font("Arial Black", 48));
+        Label title = new Label("TETRIS");
+        title.setFont(new Font("Georgia", 80));
         title.setTextFill(Color.WHITE);
-        title.setStyle("-fx-effect: dropShadow(gaussian, cyan, 20, 0,5, 0, 0);");
+        title.setStyle("-fx-effect: dropShadow(gaussian, white, 20, 0.5, 0, 0); -fx-font-style: italic;");
 
-        // Drawer Content (instructions + scoring)
-
-        // Controls Drawer
-        VBox controlsBox = new VBox (5);
-        controlsBox.getChildren().addAll(
-            new Label (" - Left Arrow OR Key A: Move left"),
-            new Label (" - Right Arrow OR Key D: Move right"), 
-            new Label (" - Up Arrow or Key W: Rotate"),
-            new Label (" - Down Arrow or Key S : Soft Drop"),
-            new Label (" - Key SPACE or Key ENTER : Hard Drop"),
-            new Label (" - Key SHIFT : Hold brick")
-        );
-
-        TitledPane controlsDrawer = new TitledPane("Controls", controlsBox);
-        controlsDrawer.setExpanded(false);  // Keep closed initially
-
-        // Scoring Drawer
-        VBox scoringBox = new VBox (5);
-        scoringBox.getChildren().addAll(
-            new Label (" - Single Line Clear: 50 pts"),
-            new Label (" - Double Line Clear: 120 pts"),
-            new Label (" - Triple Line Clear: 360 pts"),
-            new Label (" - Tetris Line Clear (4 lines with a I - shape): 1500 pts")
-        );
-
-        TitledPane scoringDrawer = new TitledPane("Scoring", scoringBox);
-        scoringDrawer.setExpanded(false);
-
-        VBox drawerContent = new VBox(12, controlsDrawer, scoringDrawer);
-        drawerContent.setStyle(
-            "-fx-padding: 18;" +
-            "-fx-background-color: rgba(255, 255, 255, 0.08);" +
-            "-fx-border-color: cyan;" +
-            "-fx-border-width: 2;" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;"
-        );
-        drawerContent.setVisible(false);    // hidden until menu button clicked
-
-        // Titled Pane acts like a drawer
-        TitledPane gameMenuDrawer = new TitledPane("GAME MENU", drawerContent);
-        gameMenuDrawer.setExpanded(false);  // collapsed by default
-        gameMenuDrawer.setStyle("-fx-font-size:18px");
-
-        // Game Menu Button
-        Button menuBtn = new Button ("GAME MENU");
-        menuBtn.setFont(new Font("Arial", 20));
-        menuBtn.setStyle(
-            "-fx-padding: 10 25;" + 
-            "-fx-text-fill: white;" +
-            "-fx-background-color: transparent;" +
-            "-fx-border-color: cyan;" +
-            "-fx-border-width: 2;" +
-            "-fx-background-radius: 10;" +
-            "-fx-border-radius: 10;"
-        );
-
-        menuBtn.setOnAction(e -> {
-            drawerContent.setVisible(!drawerContent.isVisible());
-        });
+        double buttonWidth = 250;
 
         // Start Classic Mode Button
-        Button classicBtn = new Button("START CLASSIC");
-        classicBtn.setFont(new Font ("Arial", 20));
+        Button classicBtn = new Button("CLASSIC");
+        classicBtn.setFont(new Font("Arial Black", 20));
         classicBtn.setStyle(
             "-fx-padding: 10 35;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: transparent;" +
-            "-fx-border-color: lime;" +
-            "-fx-border-width: 2;" +
-            "-fx-background-radius: 10;" +
-            "-fx-border-radius: 10;"
+            "-fx-text-fill: black;" +
+            "-fx-background-color: lime;" +
+            "-fx-background-radius: 10;" 
         );
+        classicBtn.setPrefWidth(buttonWidth);
         classicBtn.setOnAction(e -> startClassic.run());
 
         // Start 2 Minutes Mode Button
-        Button timedBtn = new Button ("START 2 MINUTES");
-        timedBtn.setFont(new Font("Arial", 20));
+        Button timedBtn = new Button("2 MINUTES");
+        timedBtn.setFont(new Font("Arial Black", 20));
         timedBtn.setStyle(
             "-fx-padding: 10 35;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: transparent;" +
-            "-fx-border-color: orange;" +
-            "-fx-border-width: 2;" +
-            "-fx-background-radius: 10;" +
-            "-fx-border-radius: 10;"
+            "-fx-text-fill: black;" +
+            "-fx-background-color: cyan;" +
+            "-fx-background-radius: 10;" 
         );
+        timedBtn.setPrefWidth(buttonWidth);
         timedBtn.setOnAction(e -> startTwoMinutes.run());
 
-        // Layout
-        VBox root = new VBox (15);
-        root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(title, classicBtn, timedBtn, menuBtn, drawerContent);
+        // Exit Button
+        Button exitBtn = new Button("EXIT");
+        exitBtn.setFont(new Font("Arial", 20));
+        exitBtn.setStyle(
+            "-fx-padding: 10 25;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: transparent;" +
+            "-fx-background-radius: 10;" 
+        );
+        exitBtn.setPrefWidth(buttonWidth);
+        exitBtn.setOnAction(e -> {
+            Stage stage = (Stage) exitBtn.getScene().getWindow();
+            stage.close();
+        });
+
+        // Center layout
+        VBox topBtns = new VBox (20, title, classicBtn, timedBtn);
+        topBtns.setAlignment(Pos.CENTER);
+
+        VBox bottomBtn = new VBox (20, exitBtn);
+        bottomBtn.setAlignment(Pos.CENTER);
+
+        VBox centerBox = new VBox(40, topBtns, bottomBtn);
+        centerBox.setAlignment(Pos.CENTER);
+
+        // Question mark button (top-right)
+        Button helpBtn = new Button("?");
+        helpBtn.setFont(new Font("Arial Black", 20));
+        helpBtn.setStyle(
+            "-fx-text-fill: cyan;" +
+            "-fx-background-color: transparent;" +
+            "-fx-border-color: lime;" +
+            "-fx-border-width: 2;" +
+            "-fx-background-radius: 50%;" +
+            "-fx-border-radius: 50%;" +
+            "-fx-padding: 5 10;"
+        );
+
+        helpBtn.setOnAction(e -> {
+            Scene currentScene = helpBtn.getScene();
+            overlay = new HelpOverlay(currentScene, () -> {
+                ((StackPane) currentScene.getRoot()).getChildren().remove(overlay);
+                overlay = null;
+            });
+            ((StackPane) currentScene.getRoot()).getChildren().add(overlay);
+        });
+
+        // Root layout
+        StackPane root = new StackPane();
+        BorderPane menuPane = new BorderPane();
+        menuPane.setCenter(centerBox);
+        menuPane.setTop(helpBtn);
+        BorderPane.setAlignment(helpBtn, Pos.TOP_RIGHT);
+
+        root.getChildren().add(menuPane);
         root.setStyle("-fx-background-color: black; -fx-padding: 40;");
 
-        return new Scene (root, 1100, 650);
+        return new Scene(root, 1100, 650);
     }
 }
+
+
+
