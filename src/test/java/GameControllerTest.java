@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import com.comp2042.EventSource;
 import com.comp2042.EventType;
+import com.comp2042.FxToolkitInitializer;
 import com.comp2042.GameController;
 import com.comp2042.GameMode;
 import com.comp2042.GuiController;
 import com.comp2042.MoveEvent;
 import com.comp2042.ViewData;
 
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
@@ -19,8 +19,7 @@ public class GameControllerTest {
 
     @BeforeAll
     static void initToolkit() {
-        // This ensures JavaFX runtime is initialized for controls like Label, GridPane
-        Platform.startup(() -> {});
+        FxToolkitInitializer.initToolkit();
     }
 
     private GuiController createDummyGuiController() {
