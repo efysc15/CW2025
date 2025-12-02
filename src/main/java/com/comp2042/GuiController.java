@@ -536,6 +536,26 @@ public class GuiController implements Initializable {
         return holdBrickPanel;
     }
 
+    public void setHoldBrickPanel(GridPane panel) {
+        this.holdBrickPanel = panel;
+    }
+
+    public void setGamePanel(GridPane panel) {
+        this.gamePanel = panel;
+    }
+
+    public void setBrickPanel(GridPane panel) {
+        this.brickPanel = panel;
+    }
+
+    public void setScoreLabel(Label label) {
+        this.scoreLabel = label;
+    }
+    
+    public void setTimerLabel(Label label) {
+        this.timerLabel = label;
+    }
+
     public void startCountdown(int startSeconds) {
         if (countdownTimer != null) {
             countdownTimer.stop();

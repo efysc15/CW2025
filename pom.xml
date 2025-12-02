@@ -25,6 +25,11 @@
             <artifactId>javafx-fxml</artifactId>
             <version>21.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>21.0.6</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -49,6 +54,15 @@
                 <configuration>
                     <source>23</source>
                     <target>23</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <!-- Ensure JUnit 5 discovery works smoothly with JavaFx-->
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
             <plugin>
