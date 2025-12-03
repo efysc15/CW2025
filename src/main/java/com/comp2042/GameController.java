@@ -56,13 +56,7 @@ public class GameController implements InputEventListener {
             landed = true;
             if (clearRow.getLinesRemoved() > 0) {
                 int lines = clearRow.getLinesRemoved();
-                int points = switch (lines) {
-                    case 1 -> 50;   // Single Line Clear + 50
-                    case 2 -> 120;  // Doublie Line Clear + 120
-                    case 3 -> 360;  // Triple Line Clear + 360
-                    case 4 -> 1500; // Tetris Line Clear (4 lines with a I-shape) + 1500
-                    default -> 0;
-                };
+                int points = 50 * lines;
                 board.getScore().add(points);
             }
             if (board.createNewBrick()) {
