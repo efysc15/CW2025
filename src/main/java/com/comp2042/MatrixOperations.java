@@ -6,11 +6,38 @@ import java.util.Deque;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class providing matrix operations for the game board
+ * <p>
+ * The {@code MatrixOperations} class contains static methods used to manipulate the game board matrix and brick matrices.
+ * These include: 
+ * <ul>
+ *  <li>Collision detection between bricks and the board</li>
+ *  <li>Copying and merging matrices</li>
+ *  <li>Clearing completed rows and calculating score bonuses<li>
+ *  <li>Deep copying lists of matrices</li>
+ * </ul>
+ * <p>
+ * This class is non-instantiable and serves purely as a helper for board and brick operations.
+ * 
+ */
 public class MatrixOperations {
+    /** Private constructor to prevent instantiation */
     private MatrixOperations(){
 
     }
 
+    /**
+     * Checks whether a brick intersects with the game board at a given position
+     * <p>
+     * An intersection occurs if any non-zero brick cell overlaps with an occupied board cell or lies outside the board boundaries.
+     * 
+     * @param matrix the game board matrix
+     * @param brick the brick matrix
+     * @param x the X position (column offset)
+     * @param y the Y position (row offset)
+     * @return {@code true} if the brick intersects with the board, {@code false} otherwise
+     */
     public static boolean intersect(final int[][] matrix, final int[][] brick, int x, int y) {
         // i iterates over rows (Y offset), j iterates over columns (X offset)
         for (int i = 0; i < brick.length; i++) {
@@ -35,8 +62,14 @@ public class MatrixOperations {
     }
 
     /**
-     * Checks if a target coordinate (X, Y) is outside the bounds of the matrix.
-     * Matrix is [Row][Column] -> [Y][X].
+     * Checks if a target coordinate (X, Y) is outside the bounds of the matrix 
+     * <p>
+     * Matrix indexing convention: {@code matrix[row][column]} -> {@code [Y][X]}.
+     * 
+     * @param matrix the game board matrix
+     * @param targetX the X coordinate
+     * @param targetY the Y coordinate
+     * @return {@code true} if the coordinate is out of bounds, {@code false} otherwise
      */
     private static boolean checkOutOfBound(int[][] matrix, int targetX, int targetY) {
         // targetY is out of bounds (below row 0 or below the last row index)
@@ -52,6 +85,11 @@ public class MatrixOperations {
         return false;
     }
 
+    /**
+     * Creates a deep copy of a matrix
+     * @param original the original matrix
+     * @return a new matrix with copied values 
+     */
     public static int[][] copy(int[][] original) {
         int[][] myInt = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
@@ -64,8 +102,15 @@ public class MatrixOperations {
     }
 
     /**
-     * Merges the falling brick into the game matrix.
-     * NOTE: Corrected indexing.
+     * Merges a brick into the game board matrix at the specified position
+     * <p>
+     * Non-zero brick cells overwrite the corresponding board cells
+     * 
+     * @param filledFields the current board matrix
+     * @param brick the brick matrix
+     * @param x the X position (column offset)
+     * @param y the Y position (row offset)
+     * @return a new matrix with the brick merged into the board
      */
     public static int[][] merge(int[][] filledFields, int[][] brick, int x, int y) {
         int[][] copy = copy(filledFields);
@@ -88,8 +133,18 @@ public class MatrixOperations {
     }
 
     /**
-     * Checks for completed rows and creates a new matrix with those rows cleared, 
-     * shifting the remaining rows down.
+     * Checks for completed rows in the board and removes them
+     * <p>
+     * Rows that are fully filled are cleared, and the remaining rows are shifted downward.
+     * A score bonus is calculated based on the number of cleared rows using the formula {@code 50 * lines^2}.
+     * 
+     * @param matrix the game board matrix
+     * @return a {@link ClearRow} object containing:
+     *         <ul>
+     *              <li>the number of lines cleared</li>
+     *              <li>the updated board matrix</li>
+     *              <li>the score bonus</li>
+     *         </ul>
      */
     public static ClearRow checkRemoving(final int[][] matrix) {
         // Initialize temporary matrix for the new state
@@ -136,6 +191,11 @@ public class MatrixOperations {
         return new ClearRow(clearedRows.size(), tmp, scoreBonus); 
     }
 
+    /**
+     * Creates a deep copy of a list of matrices
+     * @param list the list of matrices to copy
+     * @return a new list containing deep copies of matrices
+     */
     public static List<int[][]> deepCopyList(List<int[][]> list){
         return list.stream().map(MatrixOperations::copy).collect(Collectors.toList());
     }

@@ -11,9 +11,38 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * Builds the main menu scene for the TetrixFX application
+ * <p>
+ * The {@code Menu} class provides a static factory method to create the menu interface, which includes: 
+ * <ul>
+ *  <li>A game title banner</li>
+ *  <li>Buttons to start Classic mode or Two Minutes mode</li>
+ *  <li>An Exit button to close the application</li>
+ *  <li>A Help button ("?") that opens the {@link HelpOverlay}</li>
+ * </ul>
+ * <p>
+ * The menu is styled with black background, centered layout, and colorful buttons for game mode selection.
+ * 
+ */
 public class Menu {
+    /** Reference to the help overlay, shown when the "?" button is clicked */
     private static HelpOverlay overlay;
 
+    /** Private Constructor to prevent instantiation of this utility class. */
+    private Menu() {}
+
+    /**
+     * Creates and returns the menu scene
+     * <p>
+     * The menu scene included buttons for starting Classic mode, starting Two Minutes mode, exiting the application, and opening the help overlay.
+     * The provided {@link Runnable} callbacks are executed when the corresponding game mode buttons are clicked
+     * 
+     * @param startClassic a {@link Runnable} action to start Classic mode
+     * @param startTwoMinutes a {@link Runnable} action start Two Minutes mode
+     * @param currentScore the current score (passed for potential display or context)
+     * @return a fully constructed {@link Scene} representing the main menu
+     */
     public static Scene getMenuScene(Runnable startClassic, Runnable startTwoMinutes, int currentScore) {
         // Game Title
         Label title = new Label("TETRIS");

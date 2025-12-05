@@ -37,10 +37,22 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * JavaFX controller class responsible for managing the game interface
+ * <p>
+ * The {@code GuiController} handles rendering of the game board, bricks, ghost bricks, notifications, score, timer, and control buttons
+ * It also manages keyboard iput and delegates gameplay actions to the {@link InputEventListener} (typically the {@link GameController})
+ * 
+ * <p>
+ * This class is linked to the FXML layout and initializes UI components such as panels, overlays, and labels
+ * 
+ */
 public class GuiController implements Initializable {
 
+    /** The size of each brick cell in pixels */
     private static final int BRICK_SIZE = 20;
 
+    // --- FXML-injected UI components ---
     @FXML private GridPane gamePanel;
     @FXML private StackPane groupNotification;
     @FXML private GridPane brickPanel;
@@ -52,7 +64,6 @@ public class GuiController implements Initializable {
     @FXML private StackPane pauseOverlay;
     @FXML private VBox resumeContainer;
     
-    // Layout Containers
     @FXML private VBox holdBrickContainer;
     @FXML private VBox nextBoxContainer;
     @FXML private VBox scoreContainer;
@@ -61,6 +72,7 @@ public class GuiController implements Initializable {
     @FXML private StackPane centerStack;
     @FXML private Label timerLabel;
 
+    // --- Internal state ---
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
     private Rectangle[][] rectangles;
@@ -73,6 +85,19 @@ public class GuiController implements Initializable {
     private final IntegerProperty remainingSecondsProperty = new SimpleIntegerProperty();
     private Scene menuScene;
 
+    /** 
+     * Creates a new {@code GuiController} instance
+     * <p>
+     * This constructor is invoked automatically by the JavaFX FXML loader when associated layout file is initialized
+     */
+    public GuiController() {}
+    
+    /**
+     * Initializes the GUI controller after FXML loading
+     * <p>
+     * Sets up fonts, keyboard input handling, notification layers, game over panel, and side bar buttons (pause, resume, exit, restart)
+     * 
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -188,6 +213,10 @@ public class GuiController implements Initializable {
         });
     }
 
+    /**
+     * Displays a notification when rows are cleared
+     * @param clearRow the {@link ClearRow} result containing cleared lines and score bonus
+     */
     public void clearRow(ClearRow clearRow) {
         if (clearRow == null || clearRow.getLinesRemoved() == 0) return;
 
@@ -211,8 +240,10 @@ public class GuiController implements Initializable {
         }
     }
 
-        // Updated to show a List of Bricks (the Queue)
-
+    /**
+     * Displays the upcoming bricks queue in the preview panel
+     * @param nextBricksQueue the list of upcoming {@link Brick} objects
+     */
     public void showNextBricksQueue (List<Brick> nextBricksQueue) {
         if (nextBrickPanel == null) return;
         nextBrickPanel.getChildren().clear();
@@ -248,6 +279,11 @@ public class GuiController implements Initializable {
         nextBrickPanel.setAlignment(Pos.CENTER);
     }
 
+    /**
+     * Initializes the game view with the board matrix and active brick
+     * @param boardMatrix the current board state
+     * @param brick the active {@link ViewData} brick
+     */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
         gamePanel.getChildren().clear(); 
         
@@ -312,6 +348,15 @@ public class GuiController implements Initializable {
         timeLine.play();
     }
 
+    /**
+     * Updates the ghost brick view based on the current board state and active brick
+     * <p>
+     * Delegates to {@link GhostBrick#updateGhost(int[][], ViewData)} to redraw
+     * The ghost outline at the lowest possible landing position
+     * 
+     * @param boardMatrix the current game board matrix
+     * @param brick the {@link ViewData} representing the active brick 
+     */
     private void updateGhostView(int[][] boardMatrix, ViewData brick) {
         if (ghostBrick != null && boardMatrix != null && brick != null) {
             ghostBrick.updateGhost(boardMatrix, brick);
@@ -319,8 +364,12 @@ public class GuiController implements Initializable {
     }
     
     /**
-     * Helper method to calculate absolute positions for floating layers (BrickPanel & GhostBrick)
-     * relative to the stable CenterStack container. This prevents jitter.
+     * Helper method to calculate absolute positions for floating layers (BrickPanel & GhostBrick) relative to the stable
+     * {@code centerStack} container
+     * <p>
+     * This prevents jitter by ensuring that the brick and ghost overlays are aligned correctly with the underlying {@code gamePanel}
+     * 
+     * @param brick the {@link ViewData} representing the active brick
      */
     private void updateLayerPositions(ViewData brick) {
         if (centerStack == null || gamePanel == null) return;
@@ -381,6 +430,25 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Maps an integer value to a fill color for rendering bricks
+     * <p>
+     * Each integer corresponds to a specific color used in the game 
+     * <ul>
+     *  <li> 0 -> Transparent </li>
+     *  <li> 1 -> Aqua </li>
+     *  <li> 2 -> BlueViolet </li>
+     *  <li> 3 -> DarkGreen </li>
+     *  <li> 4 -> Yellow </li>
+     *  <li> 5 -> Red </li>
+     *  <li> 6 -> Beige </li>
+     *  <li> 7 -> BurlyWood </li>
+     *  <li> Default -> White </li>
+     * </ul>
+     * 
+     * @param i the integer representing a brick type
+     * @return the {@link Paint} color associated with the brick type
+     */
     private Paint getFillColor(int i) {
         Paint returnPaint;
         switch (i) {
@@ -397,7 +465,10 @@ public class GuiController implements Initializable {
         return returnPaint;
     }
 
-
+    /**
+     * Refreshes the active brick rendering
+     * @param brick {@link ViewData} representing the current brick
+     */
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             
@@ -413,6 +484,10 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Refreshes the background board rendering
+     * @param board the board matrix
+     */
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -421,12 +496,24 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Updates the visual properties of a rectangle representing a brick cell
+     * <p>
+     * Sets the fill color based on the given integer value using {@link #getFillcolor(int)}, applies rounded corners for a smoother visual appearance
+     * 
+     * @param color the integer representing the brick type or state
+     * @param rectangle the {@link Rectangle} to update
+     */
     private void setRectangleData(int color, Rectangle rectangle) {
         rectangle.setFill(getFillColor(color));
         rectangle.setArcHeight(9);
         rectangle.setArcWidth(9);
     }
 
+    /**
+     * Handles the downward movement of the brick
+     * @param event the {@link MoveEvent} representing the down action
+     */
     private void moveDown(MoveEvent event) {
         if (isPause.getValue() == Boolean.FALSE) {
             DownData downData = eventListener.onDownEvent(event);
@@ -438,14 +525,30 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    /**
+     * Sets the event listener that handles gameplay input events
+     * <p>
+     * The {@link InputEventListener} is typically implemented by the {@link GameController}, which processes user actions such as moving, rotating, holding, or dropping bricks
+     * This allows the {@code GuiController} to delegate input handling to the game logic 
+     * 
+     * @param eventListener the {@link InputEventListener} to receive and process input events 
+     */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
 
+    /**
+     * Binds the score label to the given property
+     * @param integerProperty the score property
+     */
     public void bindScore(IntegerProperty integerProperty) {
         scoreLabel.textProperty().bind(integerProperty.asString("%d"));
     }
 
+    /**
+     * Binds the timer label to the given property
+     * @param secondsProperty the countdown property
+     */
     public void bindTimer(IntegerProperty secondsProperty) {
         timerLabel.textProperty().bind(
             javafx.beans.binding.Bindings.createStringBinding(
@@ -454,6 +557,12 @@ public class GuiController implements Initializable {
         );
     }
 
+    /**
+     * Handles game over state: stops timers, shows overlay, and displays final score
+     * <p>
+     * Stops the active timeline, displays the game over overlay, shows the final score on the {@link GameOverPanel}, and marks the game as over
+     * 
+     */
     public void gameOver() {
         if (timeLine != null) {
             timeLine.stop();
@@ -472,6 +581,13 @@ public class GuiController implements Initializable {
         isGameOver.setValue(Boolean.TRUE);
     }
 
+    /**
+     * Starts a new game by resetting the board, overlays and timers
+     * <p> 
+     * Hides the game over panel, resets pause state, and delegates to the {@link InputEventListener} to create a new game instance
+     * 
+     * @param actionEvent the triggering event 
+     */
     public void newGame(ActionEvent actionEvent) {
         if (timeLine != null) timeLine.stop();
         if (groupNotification != null) {
@@ -500,10 +616,24 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Pauses the game by shifting focus back to the game panel
+     * <p>
+     * This method does not alter timers or overlays directly, but ensures keyboard input remains focused on the game
+     * 
+     * @param actionEvent the triggering event
+     */
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
     }
 
+    /**
+     * Performs a hard drop of the active brick
+     * <p>
+     * Continuosly moves the brick downward until it lands, refreshing the view at each step
+     * Updates the background and clears rows if necessary
+     * 
+     */
     public void hardDrop() {
         if (isPause.get() || isGameOver.get()) {
             return;
@@ -528,34 +658,69 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    /**
+     * Sets the active game board instance
+     * @param board the {@link Board} to associate with this controller
+     */
     public void setBoard (Board board) {
         this.board = board;
     }
 
+    /**
+     * Returns the panel used to display the held brick
+     * @return the {@link GridPane} representing the hold brick panel
+     */
     public GridPane getHoldBrickPanel() {
         return holdBrickPanel;
     }
 
+    /**
+     * Sets the panel used to display the held brick
+     * @param panel the {@link GridPane} to assign as the hold brick panel
+     */
     public void setHoldBrickPanel(GridPane panel) {
         this.holdBrickPanel = panel;
     }
 
+    /**
+     * Sets the main game panel where the board is rendered
+     * @param panel the {@link GridPane} representing the game panel
+     */
     public void setGamePanel(GridPane panel) {
         this.gamePanel = panel;
     }
 
+    /**
+     * Sets the panel used to render the active brick
+     * @param panel the {@link GridPane} representing the brick panel
+     */
     public void setBrickPanel(GridPane panel) {
         this.brickPanel = panel;
     }
 
+    /**
+     * Sets the label used to display the score
+     * @param label the {@link Label} to bind to the score
+     */
     public void setScoreLabel(Label label) {
         this.scoreLabel = label;
     }
     
+    /**
+     * Sets the label used to display the timer
+     * @param label the {@link Label} to bind to the timer
+     */
     public void setTimerLabel(Label label) {
         this.timerLabel = label;
     }
 
+    /**
+     * Starts a countdown timer for timed game mode
+     * <p>
+     * Updated the {@code remainingSecondsProperty} every second and trigger {@link #gameOver()} when the timer reaches zero
+     * 
+     * @param startSeconds the starting time in seconds
+     */
     public void startCountdown(int startSeconds) {
         if (countdownTimer != null) {
             countdownTimer.stop();
@@ -577,16 +742,28 @@ public class GuiController implements Initializable {
         countdownTimer.playFromStart();
     }
 
+    /**
+     * Formats a time value in seconds into a {@code mm:ss} string
+     * @param totalSeconds the total time in seconds
+     * @return a formatted string in {@code mm:ss} format
+     */
     private String formatTime(int totalSeconds) {
         int mins = totalSeconds / 60;
         int secs = totalSeconds % 60;
         return String.format("%02d:%02d", mins, secs);
     }
 
+    /**
+     * Returns the property representing the remaining countdown seconds
+     * @return the {@link IntegerProperty} for remaining seconds
+     */
     public IntegerProperty getRemainingSecondsProperty() {
         return remainingSecondsProperty;
     }
 
+    /**
+     * Resets the countdown timer to zero and stops it if running
+     */
     public void resetTimer() {
         if (countdownTimer != null) {
             countdownTimer.stop();
@@ -594,34 +771,66 @@ public class GuiController implements Initializable {
         remainingSecondsProperty.set(0);
     }
 
+    /**
+     * Sets the menu scene to be displayed when exiting the game
+     * @param menuScene the {@link Scene} representing the menu
+     */
     public void setMenuScene(Scene menuScene) {
         this.menuScene = menuScene;
     }
 
+    /**
+     * Returns the menu scene associated with this controller
+     * @return the {@link Scene} representing the menu
+     */
     public Scene getMenuScene() {
         return menuScene;
     }
 
+    /**
+     * Sets the notification overlay container
+     * @param groupNotification the {@link StackPane} used for notifications 
+     */
     public void setGroupNotification(StackPane groupNotification) {
         this.groupNotification = groupNotification;
     }
 
+    /**
+     * Sets the pause overlay container
+     * @param pauseOverlay the {@link StackPane} used for pause overlay
+     */
     public void setPauseOverlay(StackPane pauseOverlay) {
         this.pauseOverlay = pauseOverlay;
     }
 
+    /**
+     * Sets the sidebar button container
+     * @param buttonBar the {@link VBox} containing control buttons
+     */
     public void setButtonBar(VBox buttonBar) {
         this.buttonBar = buttonBar;
     }
 
+    /**
+     * Sets the resume button container
+     * @param resumeContainer the {@link VBox} containing the resume button
+     */
     public void setResumeContainer(VBox resumeContainer) {
         this.resumeContainer = resumeContainer;
     }
 
+    /**
+     * Returns the label used to display the current score
+     * @return the {@link Label} bound to the score property
+     */
     public Label getScoreLabel() {
         return scoreLabel;
     }
 
+    /**
+     * Returns the label used to display the game timer
+     * @return the {@link Label} bound to the timer property
+     */
     public Label getTimerLabel() {
         return timerLabel;
     }

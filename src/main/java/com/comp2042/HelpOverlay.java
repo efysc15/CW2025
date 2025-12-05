@@ -12,8 +12,33 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+ * A JavaFX overlay component that displays help information for the game
+ * <p>
+ * The {@code HelpOverlay} provides three sections 
+ * <ul>
+ *  <li> <b>Controls</b> - Explains how to move, rotate, drop and hold piece </li>
+ *  <li> <b>Rules</b> - Describes the objective of clearing line and ending conditions </li>
+ *  <li> <b>Scoring</b> - Details the poins awarded for clearing lines </li>
+ * </ul>
+ * <p>
+ * The overlay is styled with a semi-transparent background and cyan border and includes a "Back to Menu" button to return to the main menu
+ * 
+ */
 public class HelpOverlay extends StackPane {
 
+    /**
+     * Constructs a new {@code HelpOverlay}
+     * <p>
+     * Initializes the layout with section buttons, a description area, and a back button.
+     * Each section button updates the description with detailed text when clicked
+     * 
+     * @param menuScene the {@link Scene} representing the main menu of the application
+     *                  This is the scene that the user will be returned to when clicking the "Back to Menu" button.
+     *                  It provides the navigation target for exiting the help overlay and restoring the menu interface.
+     * @param backToMenuAction a {@link Runnable} action executed when the "Back to Menu" button is clicked.
+     *                         This allows additional cleanup or state-reset logic to run before switching back to menu scene.
+     */
     public HelpOverlay(Scene menuScene, Runnable backToMenuAction) {
         setStyle("-fx-background-color: rgba(0,0,0,0.85);");
 
@@ -86,14 +111,19 @@ public class HelpOverlay extends StackPane {
         scoringBtn.setOnAction(e -> description.setText(
             "Scoring:\n\n" +
             "Points are awarded based on how many lines you clear at once:\n" +
-            " - Single Line: 50 points\n" +
-            " - Double Line: 120 points\n" +
-            " - Triple Line: 360 points\n" +
-            " - Tetris (4 lines): 1500 points\n\n" +
+            " - Single Line: (50 * 1) points\n" +
+            " - Double Line: (50 * 2) points\n" +
+            " - Triple Line: (50 * 3)) points\n" +
+            " - Tetris (4 lines): (50 * 4) points\n\n" +
             "Clearing multiple lines at once gives you a big bonus, so aim for Tetrises!"
         ));
     }
 
+    /**
+     * Creates a plain-styled button with white text and transparent background 
+     * @param text the label text for the button
+     * @return a styled {@link Button} instance
+     */
     private Button createPlainButton(String text) {
         Button btn = new Button(text);
         btn.setFont(new Font("Arial", 16));

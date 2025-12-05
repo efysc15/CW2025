@@ -5,11 +5,27 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color; 
 
+/**
+ * A JavaFX UI component representing the "Game Over" panel
+ * <p>
+ * The {@code GameOverPanel} displays a "GAME OVER" message, the player's final score, and provides buttons to start a new game or exit back to the menu
+ * 
+ * <p>
+ * This panel is designed to be loaded via FXML and initialized by the {@link GuiController}
+ * 
+ */
 public class GameOverPanel extends VBox {
 
+    /** Label used to display the player's final score */    
     private Label scoreLabel;
 
-    // REQUIRED: Parameterless constructor for FXML Loader
+    /**
+     * Constructs a new {@code GameOverPanel}
+     * <p>
+     * Initializes the "GAME OVER" label and an empty score label, styled with a neon theme
+     * This parameterless constructor is required for FXML loading
+     * 
+     */
     public GameOverPanel() {
         Label gameOverLabel = new Label("GAME OVER");
         gameOverLabel.setTextFill(Color.WHITE); 
@@ -28,17 +44,19 @@ public class GameOverPanel extends VBox {
 
     /**
      * Update the score shown on the panel
+     * @param score the final score to display
      */
-
     public void showFinalScore(int score) {
         scoreLabel.setText("Final Score: " + score);
     }
     
     /**
-     * Public method to perform application-specific initialization, 
-     * called by the GuiController after the FXML component is loaded.
-     * This method adds the actual "New Game" and "Exit" buttons.
-     * @param newGameAction The Runnable action to start a new game (typically GuiController::newGame).
+     * Performs appplication-specific initialization after the FXML component is loaded
+     * <p>
+     * Adds the "New Game" and "Exit" buttons to the panel by instantiating a {@link GameOverButton} component
+     * Ensures buttons are only added once
+     * 
+     * @param guiController the {@link GuiController} used to handle button actions
      */
     public void setup(GuiController guiController) {
         // Only create and add the button container once to prevent duplicates

@@ -7,7 +7,7 @@ import com.comp2042.logic.bricks.Brick;
  * Implements {@link InputEventListener} to handle user and system events such as moving, rotating, and holding bricks
  * <p>
  * The {@code GameController} manages the game board, scoring, timers, and interactions with the {@link GuiController} for updating the view
- * </p>
+ * 
  */
 
 public class GameController implements InputEventListener {
@@ -64,7 +64,7 @@ public class GameController implements InputEventListener {
 
     /**
      * Returns the game timer
-     * @return the {@link TImer} instance
+     * @return the {@link Timer} instance
      */
     public Timer getTimer() {
         return timer;

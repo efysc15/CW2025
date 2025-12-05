@@ -4,13 +4,26 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
- 
+
+/**
+ * A JavaFX UI component that displays the "Game Over" menu
+ * <p>The {@code GameOverButton} provides two buttons: 
+ * <ul>
+ *  <li><b> New Game </b> - Starts a new game by invoking the {@link GuiController} </li>
+ *  <li><b> Exit Game </b> - Returns the player to the main menu scene </li>
+ * </ul>
+ * <p> Both buttons are styled with a neon theme and arranged vertically in the center of the layout.
+ */
 public class GameOverButton extends VBox{
+    /** Reference to the GUI controller for handling button actions */
     private final GuiController guiController;
 
     /**
-     * Creates the buttons and attaches their actions, applying inline styles.
-     * @param newGameAction The Runnable action to be executed when 'New Game' is clicked.
+     * Constructs a new {@code GameOverButton} layout with "New Game" and "Exit Game" buttons
+     * <p>
+     * The buttons are styled with a neon theme and aligned vertically with spacing
+     * 
+     * @param guiController the {@link GuiController} used to handle button actions
      */
     public GameOverButton(GuiController guiController) {
         this.guiController = guiController;
